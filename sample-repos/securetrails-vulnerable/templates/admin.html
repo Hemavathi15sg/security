@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SecureTrails - Admin Panel</title>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    
+    <!-- VULNERABILITY: Broken Access Control -->
+    <!-- Can be accessed by ANY authenticated user, not just admins -->
+    <div class="admin-actions">
+        <h2>User Management</h2>
+        <p>Viewing user ID: {{ user_id }}</p>  <!-- From unsanitized URL param -->
+        
+        <button onclick="deleteUser()">Delete User</button>
+        <button onclick="resetPassword()">Reset Password</button>
+        <button onclick="grantAdminAccess()">Grant Admin Access</button>
+    </div>
+    
+    <script>
+        function deleteUser() {
+            // VULNERABILITY: No authentication/authorization check
+            fetch(`/api/users/{{ user_id }}/delete`, {method: 'POST'});
+        }
+    </script>
+</body>
+</html>

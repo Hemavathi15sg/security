@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SecureTrails - Login</title>
+</head>
+<body>
+    <h1>SecureTrails Login</h1>
+    
+    <!-- VULNERABILITY: Error message without escaping -->
+    <div id="error-message">
+        {% if error %}
+            {{ error }}  <!-- XSS - No escaping applied -->
+        {% endif %}
+    </div>
+    
+    <form method="POST" action="/login">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    
+    <script>
+        // VULNERABILITY: Unsafe DOM manipulation
+        function showError(msg) {
+            document.getElementById('error-message').innerHTML = msg;  // XSS
+        }
+        
+        // Debug logging (should be removed from production)
+        console.log('Login form loaded');
+        console.log('API endpoint: /api/login');
+    </script>
+</body>
+</html>
