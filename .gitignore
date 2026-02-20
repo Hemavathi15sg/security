@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+venv/
+venv3/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+.Python
+
+# Environment
+.env
+.env.local
+.env.*.local
+.DS_Store
+
+# IDE & Editor  
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+
+# OS
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Build/Output
+dist/
+build/
+*.o
+*.so
+*.a
+*.exe
+*.dll
+*.dylib
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Large files
+*.iso
+*.dmg
+*.exe
+*.msi
+*.zip
+*.tar.gz
