@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SecureTrails - Trails</title>
+</head>
+<body>
+    <h1>Hiking Trails</h1>
+    
+    <!-- VULNERABILITY: Comments rendered without escaping -->
+    <div id="trails-container">
+        {% for trail in trails %}
+            <div class="trail-card">
+                <h3>{{ trail.name }}</h3>
+                <p>{{ trail.description }}</p>
+                
+                <!-- XSS: Comments not escaped -->
+                <div class="comments">
+                    {% for comment in trail.comments %}
+                        <p>{{ comment }}</p>  <!-- XSS - Raw HTML rendered -->
+                    {% endfor %}
+                </div>
+                
+                <form method="POST" action="/comments/{{ trail.id }}">
+                    <textarea name="comment" placeholder="Add a comment..."></textarea>
+                    <button type="submit">Post</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <script>
+        // VULNERABILITY: Direct API calls without CSRF tokens
+        function getTrailDetails(trailId) {
+            fetch(`/trail/${trailId}`)
+                .then(r => r.json())
+                .then(data => {
+                    // VULNERABILITY: Unsafe DOM manipulation
+                    document.getElementById('details').innerHTML = JSON.stringify(data);
+                });
+        }
+    </script>
+</body>
+</html>
