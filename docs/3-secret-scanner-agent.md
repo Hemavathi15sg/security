@@ -48,181 +48,159 @@ You'll:
 
 **Objective**: Install and register the custom secret-detector agent.
 
-First, verify the agent file exists:
+### Run the Secret Detection Agent
+
+In VS Code terminal (`` Ctrl+` ``):
 
 ```bash
-cd securetrails-vulnerable
+cd apps/securetrails-vulnerable
 
-# List available agents in .github/agents/
-ls -la .github/agents/
+# Execute the secret-detector agent directly
+python ../../.github/agents/secret-detector.py
 
-# Expected files:
-# - secret-detector.py (MAIN AGENT)
-# - issue-reporter.py (HELPER AGENT - called by secret-detector)
-# - remediation-proposer.py (HELPER AGENT - created fix PRs)
+# Or from root:
+python .github/agents/secret-detector.py
 ```
 
-**Initialize the agent using Copilot SDK:**
-
-```bash
-# Register the secret-detector agent
-gh copilot agent register \
-  --agent-path .github/agents/secret-detector.py \
-  --name "secret-detector-enforcer" \
-  --description "Detects and prevents credential leaks in git commits" \
-  --triggers "pre-commit,pre-push" \
-  --chaining-enabled true
-```
+**What the agent does:**
+- ✅ Scans all `.py`, `.js`, `.html`, `.env`, `.txt` files
+- ✅ Detects credentials: API keys, AWS credentials, JWT secrets, private keys
+- ✅ Uses regex patterns + entropy analysis
+- ✅ Outputs JSON report with findings
+- ✅ Exits with code 1 if secrets found (can block CI/CD)
 
 **Expected output:**
-```
-✓ Agent Registered: secret-detector-enforcer
-✓ Location: .github/agents/secret-detector.py
-✓ Triggers: pre-commit, pre-push
-✓ Chaining: Enabled (can call other agents)
-✓ Status: Active
-```
-
----
-
-### Step 2: Understanding Agent Chaining Architecture
-
-**Objective**: Learn how agents communicate and pass context.
-
-The agent chain for this exercise:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ TRIGGER: Developer runs `git push`                          │
-└──────────────────────────────┬──────────────────────────────┘
-                               ↓
-┌──────────────────────────────────────────────────────────────┐
-│ AGENT 1: secret-detector-enforcer                            │
-│ ─────────────────────────────────────────────────────────────│
-│ Task: Scan files for credential patterns                    │
-│ Methods:                                                     │
-│  - Regex matching (AWS_KEY, API_KEY, DATABASE_URL, etc.)    │
-│  - Entropy analysis (high-entropy random strings)           │
-│  - File extension scanning (.env, .pem, .key)               │
-│ Output: {found_secrets: [{file, line, type, snippet}]}      │
-└──────────────────────────────┬──────────────────────────────┘
-                               ↓
-                    ┌──────────────────┐
-                    │ Secrets Found?   │
-                    └────┬─────────┬───┘
-                         │ YES     │ NO
-                    ┌────▼─┐   ┌──▼────┐
-                    │CHAIN │   │ALLOW  │
-                    │AGENTS│   │PUSH   │
-                    └────┬─┘   └───────┘
-                         ↓
-                    ┌──────────────────────────────────────────┐
-                    │ AGENT 2: issue-reporter                  │
-                    │ ───────────────────────────────────────  │
-                    │ Input: Shared context from Agent 1       │
-                    │ Task: Create GitHub issue with findings  │
-                    │ Output: GitHub Issue #XX created         │
-                    └──────────────────┬───────────────────────┘
-                                       ↓
-                    ┌──────────────────────────────────────────┐
-                    │ AGENT 3: remediation-proposer            │
-                    │ ───────────────────────────────────────  │
-                    │ Input: Issue details + secret locations  │
-                    │ Task: Generate fix PR                    │
-                    │ Output: PR #YY with remediation          │
-                    └──────────────────────────────────────────┘
-```
-
-**Key Concept — Context Passing Between Agents:**
-
-```python
-# Pseudo-code showing how agents share context:
-
-# Agent 1 finds secrets
-findings = {
-    "secrets_found": [
-        {
-            "file": "app.py",
-            "line": 12,
-            "type": "JWT_SECRET",
-            "pattern_matched": "JWT_SECRET = '...'",
-            "severity": "CRITICAL"
-        }
-    ],
-    "timestamp": "2026-02-20T...",
-    "commit": "abc123"
+```json
+{
+  "secrets_found": [
+    {
+      "file": ".env.example",
+      "line": 3,
+      "type": "DATABASE_PASSWORD",
+      "pattern": "postgres://user:PASSWORD123@localhost",
+      "severity": "CRITICAL",
+      "remediation": "Move to environment variables, never commit credentials"
+    },
+    {
+      "file": "app.py",
+      "line": 12,
+      "type": "JWT_SECRET",
+      "pattern": "JWT_SECRET = 'super-secret-key-12345'",
+      "severity": "CRITICAL",
+      "remediation": "Use os.getenv('JWT_SECRET') instead"
+    }
+  ],
+  "summary": {
+    "total_secrets": 2,
+    "critical": 2,
+    "exit_code": 1
+  }
 }
+```
 
-# Agent 2 receives findings as input
-issue_created = agent2.run(input=findings)
+**Verify the agent works:**
+```bash
+# Check if secrets were detected (non-zero exit code = secrets found)
+python ../../.github/agents/secret-detector.py
+echo "Exit code: $?"      # Mac/Linux
+echo "Exit code: $LASTEXITCODE"  # Windows
 
-# Agent 3 receives results from Agent 2
-fix_pr_created = agent3.run(input=issue_created, context=findings)
+# Expected: Exit code 1 (secrets found) or 0 (clean)
 ```
 
 ---
 
-### Step 3: Set Up Pre-Commit Hook for Testing
+### Understanding Agent Data Flow (Real Approach)
 
-**Objective**: Configure the agent to run before commits are made.
+**Current Technology (2026):**
 
-Create pre-commit configuration:
+Agents communicate through **file-based data passing** (JSON files), not via abstract SDK calls. Here's how real agent orchestration works:
 
-```bash
-# Install pre-commit framework
-pip install pre-commit
-
-# Create .pre-commit-config.yaml
-cat > .pre-commit-config.yaml << 'EOF'
-repos:
-  - repo: local
-    hooks:
-      - id: copilot-secret-scan
-        name: Copilot Secret Scanner
-        entry: python .github/agents/secret-detector.py
-        language: system
-        stages: [commit]
-        always_run: true
-        pass_filenames: false
-        verbose: true
-        
-  - repo: local
-    hooks:
-      - id: copilot-issue-reporter
-        name: Copilot Issue Reporter
-        entry: python .github/agents/issue-reporter.py
-        language: system
-        stages: [commit]
-        always_run: true
-        pass_filenames: false
-        depend: [copilot-secret-scan]
-EOF
-
-# Install the hooks
-pre-commit install --stages commit,push
 ```
+AGENT 1: secret-detector.py
+├─ Scans code
+├─ Outputs: findings.json
+│  {
+│    "secrets_found": [...],
+│    "timestamp": "2026-02-21T...",
+│    "status": "blocked" | "allowed"
+│  }
+└─ Exit code: 1 if secrets found, 0 if clean
+
+     ↓ (if secrets found)
+
+AGENT 2: issue-reporter.py
+├─ Reads: findings.json
+├─ Creates GitHub issue via API
+├─ Outputs: issue_created.json
+│  {
+│    "issue_id": "123",
+│    "issue_url": "https://github.com/.../issues/123"
+│  }
+└─ Exit code: 0 or 1
+
+     ↓ (optional, on demand)
+
+AGENT 3: remediation-proposer.py
+├─ Reads: findings.json + issue_created.json
+├─ Generates fix suggestions
+├─ Creates PR with proposed remediation
+├─ Outputs: pr_created.json
+└─ Exit code: 0 or 1
+```
+
+**Key Point:** Agents work like Unix pipeline commands - they read stdin/files, process, output files/stdout.
 
 ---
 
-### Step 4: Test Agent Chain with Intentional Secret
+### Step 3: Actually Run the Agent Chain
 
-**Objective**: Deliberately commit a secret to trigger the agent chain.
+**Objective:** Execute agents sequentially with real data passing.
 
-Create a test file with hardcoded secret:
+Create a workflow script that orchestrates agents:
 
 ```bash
-# Create a file (deliberately) with exposed credential
-cat > test-secret-exposure.txt << 'EOF'
-# This is a test case for Exercise 3
-# DO NOT use this file in production
+# Create orchestration script
+cat > run-security-agents.sh << 'EOF'
+#!/bin/bash
 
-API_KEY=sk_live_51234567890abcdefghijklmnopqrstuv
-DATABASE_URL=postgres://user:$ecure_p@ssw0rd@db.example.com:5432/trails
-AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
-GITHUB_TOKEN=ghp_aB3CdEf9ghI0jKlMn1OpQrStUvWxYz2A
+echo "🔐 Running Security Agent Suite..."
 
-# Note: All above are intentionally exposed for testing
+# Step 1: Scan for secrets
+echo "1️⃣  Scanning for secrets..."
+python .github/agents/secret-detector.py > findings.json 2>&1
+DETECTOR_STATUS=$?
+
+# Step 2: If secrets found, report them
+if [ $DETECTOR_STATUS -eq 1 ]; then
+    echo "⚠️  Secrets detected! Creating GitHub issue..."
+    python .github/agents/issue-reporter.py findings.json > issue.json 2>&1
+    
+    # Step 3: Propose remediation
+    echo "🔧 Proposing fixes..."
+    python .github/agents/remediation-proposer.py issue.json findings.json > pr.json 2>&1
+    
+    echo "✅ Agents completed: ⚠️  SECRETS FOUND - Issue created, PR proposed"
+    exit 1
+else
+    echo "✅ No secrets detected - clean to proceed"
+    exit 0
+fi
 EOF
+
+chmod +x run-security-agents.sh
+```
+
+Test the orchestration:
+
+```bash
+# Run the agent chain
+./run-security-agents.sh
+
+# Check created files
+ls -la findings.json issue.json pr.json 2>/dev/null
+cat findings.json  # View detected secrets
+```
 ```
 
 **Attempt to commit (this will trigger agent chain):**
