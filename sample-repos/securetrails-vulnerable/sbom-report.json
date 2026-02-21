@@ -1,0 +1,210 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "serialNumber": "urn:uuid:sbom-20260221062420",
+  "metadata": {
+    "timestamp": "2026-02-21T06:24:20.451745Z",
+    "tools": [
+      {
+        "vendor": "GitHub Copilot",
+        "name": "dependency-supply-chain-scout",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "name": "securetrails-vulnerable",
+      "version": "1.0.0",
+      "description": "Vulnerable Flask application for security training"
+    }
+  },
+  "packages": [
+    {
+      "name": "Flask",
+      "version": "1.1.0",
+      "license": "BSD-3-Clause",
+      "purl": "pkg:pypi/Flask@1.1.0",
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2024-22414",
+          "severity": "HIGH",
+          "description": "XSS vulnerability via unsafe Jinja2 template rendering with |safe filter",
+          "cvss": "7.5"
+        }
+      ],
+      "recommended_version": "3.0.3",
+      "vulnerability_count": 1,
+      "risk_score": 7
+    },
+    {
+      "name": "requests",
+      "version": "2.24.0",
+      "license": "Apache-2.0",
+      "purl": "pkg:pypi/requests@2.24.0",
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2024-35195",
+          "severity": "MEDIUM",
+          "description": "Certificate verification bypass - first request with verify=False disables verification for connection pool",
+          "cvss": "6.0"
+        },
+        {
+          "cve_id": "CVE-2024-47081",
+          "severity": "HIGH",
+          "description": "Credential leak via .netrc parsing flaw with malicious URLs",
+          "cvss": "8.2"
+        }
+      ],
+      "recommended_version": "2.32.4",
+      "vulnerability_count": 2,
+      "risk_score": 11
+    },
+    {
+      "name": "SQLAlchemy",
+      "version": "1.3.0",
+      "license": "MIT",
+      "purl": "pkg:pypi/SQLAlchemy@1.3.0",
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2019-7164",
+          "severity": "CRITICAL",
+          "description": "SQL injection via order_by parameter allows arbitrary SQL execution",
+          "cvss": "9.8"
+        }
+      ],
+      "recommended_version": "2.0.35",
+      "vulnerability_count": 1,
+      "risk_score": 10
+    },
+    {
+      "name": "Werkzeug",
+      "version": "1.0.0",
+      "license": "BSD-3-Clause",
+      "purl": "pkg:pypi/Werkzeug@1.0.0",
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2023-25577",
+          "severity": "HIGH",
+          "description": "DoS via unlimited multipart form parsing causing resource exhaustion",
+          "cvss": "7.5"
+        },
+        {
+          "cve_id": "CVE-2023-46136",
+          "severity": "HIGH",
+          "description": "DoS via crafted multipart uploads with excessive CPU/memory use",
+          "cvss": "7.5"
+        },
+        {
+          "cve_id": "CVE-2024-34069",
+          "severity": "HIGH",
+          "description": "Remote code execution via debugger PIN exploitation",
+          "cvss": "8.1"
+        },
+        {
+          "cve_id": "CVE-2024-49767",
+          "severity": "HIGH",
+          "description": "Resource exhaustion via multipart requests bypassing memory limits",
+          "cvss": "7.5"
+        },
+        {
+          "cve_id": "CVE-2024-49766",
+          "severity": "MEDIUM",
+          "description": "Path traversal on Windows with Python <3.11 via unsafe safe_join",
+          "cvss": "6.5"
+        }
+      ],
+      "recommended_version": "3.0.6",
+      "vulnerability_count": 5,
+      "risk_score": 32
+    },
+    {
+      "name": "Jinja2",
+      "version": "2.11.0",
+      "license": "BSD-3-Clause",
+      "purl": "pkg:pypi/Jinja2@2.11.0",
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2024-22195",
+          "severity": "HIGH",
+          "description": "XSS via HTML attribute injection when xmlattr filter bypasses auto-escaping",
+          "cvss": "7.3"
+        },
+        {
+          "cve_id": "CVE-2024-56326",
+          "severity": "CRITICAL",
+          "description": "Sandbox breakout via str.format allowing arbitrary Python code execution",
+          "cvss": "9.8"
+        },
+        {
+          "cve_id": "CVE-2019-10906",
+          "severity": "HIGH",
+          "description": "Template injection leading to sandbox escape and code execution",
+          "cvss": "8.6"
+        }
+      ],
+      "recommended_version": "3.1.5",
+      "vulnerability_count": 3,
+      "risk_score": 24
+    },
+    {
+      "name": "MarkupSafe",
+      "version": "1.1.0",
+      "license": "BSD-3-Clause",
+      "purl": "pkg:pypi/MarkupSafe@1.1.0",
+      "vulnerabilities": [],
+      "recommended_version": "3.0.2",
+      "vulnerability_count": 0,
+      "risk_score": 0
+    },
+    {
+      "name": "click",
+      "version": "7.1.0",
+      "license": "BSD-3-Clause",
+      "purl": "pkg:pypi/click@7.1.0",
+      "vulnerabilities": [],
+      "recommended_version": "8.1.8",
+      "vulnerability_count": 0,
+      "risk_score": 0
+    },
+    {
+      "name": "itsdangerous",
+      "version": "1.1.0",
+      "license": "BSD-3-Clause",
+      "purl": "pkg:pypi/itsdangerous@1.1.0",
+      "vulnerabilities": [],
+      "recommended_version": "2.2.0",
+      "vulnerability_count": 0,
+      "risk_score": 0
+    },
+    {
+      "name": "Flask-CORS",
+      "version": "3.0.8",
+      "license": "MIT",
+      "purl": "pkg:pypi/Flask-CORS@3.0.8",
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2024-6221",
+          "severity": "MEDIUM",
+          "description": "CORS misconfiguration - Access-Control-Allow-Private-Network set to true by default",
+          "cvss": "6.5"
+        }
+      ],
+      "recommended_version": "5.0.0",
+      "vulnerability_count": 1,
+      "risk_score": 4
+    }
+  ],
+  "summary": {
+    "total_packages": 9,
+    "total_vulnerabilities": 13,
+    "severity_distribution": {
+      "CRITICAL": 2,
+      "HIGH": 8,
+      "MEDIUM": 3,
+      "LOW": 0
+    },
+    "packages_with_vulnerabilities": 6,
+    "risk_level": "CRITICAL"
+  }
+}
