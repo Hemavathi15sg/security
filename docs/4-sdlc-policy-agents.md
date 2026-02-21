@@ -3,201 +3,323 @@
 **Duration**: 25 minutes  
 **Expected Time to Complete**: 25 min
 
+**Level**: ⭐⭐⭐⭐ Advanced  
+**Focus**: Enterprise automation, GitHub Actions orchestration
+
 ---
 
 ## 🎯 Learning Objectives
 
 By the end of this exercise, you will:
 
-✅ Design organization-level security policies  
-✅ Orchestrate multiple agents in a complex workflow  
-✅ Integrate agents with GitHub Actions  
-✅ Implement automated policy enforcement across SDLC  
-✅ Understand production-ready security automation  
+✅ **Orchestrate** multiple agents with GitHub Actions workflows  
+✅ **Automate** security decisions (block, warn, pass)  
+✅ **Enforce** organization policies across all PRs  
+✅ **Integrate** security seamlessly into CI/CD pipeline  
+✅ **Audit** security findings for compliance  
 
 ---
 
-## 📖 Scenario Context
+## 📖 Scenario
 
 Executive asks: **"How do we ensure EVERY pull request meets our security standards before merge?"**
 
-You need enterprise-level automation. Your solution: Build a **multi-agent orchestration system** that:
-- Runs baseline security checks on every PR
-- Enforces organization policies
-- Blocks violations automatically
-- Proposes fixes automatically
-- Provides audit trail
+**Solution**: Enterprise-level automation with **GitHub Actions + coordinated agents** that:
+- ✅ Run baseline security checks on every PR
+- ✅ Scan dependencies for CVEs  
+- ✅ Block PRs with hard security violations
+- ✅ Create issues automatically
+- ✅ Provide audit trail for compliance
 
-This is Exercise 4 — bringing security throughout the entire Software Development Lifecycle (SDLC).
-
----
-
-## 🔍 Task Overview
-
-You'll:
-1. Define security policies in YAML
-2. Configure multi-agent orchestration
-3. Set up GitHub Actions workflow
-4. Test with policy violations
-5. Watch automated review + blocking + remediation
+This is real, production-ready security automation.
 
 ---
 
-## 📋 Step-by-Step Instructions
+## 🏗️ Enterprise Workflow Architecture
 
-### Step 1: Define Security Policies
+**How it actually works in 2026:**
 
-**Objective**: Codify your organization's security requirements.
+```
+GitHub Event (PR opened, code pushed)
+         ↓
+  GitHub Actions Workflow Triggered
+         ↓
+  ┌─────────────────────────────────┐
+  │  Run Agent 1: baseline-checker  │
+  │  (scan code for vuln patterns)  │
+  │  Output: findings.json          │
+  └────────────┬────────────────────┘
+               ↓
+  ┌─────────────────────────────────┐  
+  │ Check findings.json severity    │
+  │ Evaluate policy rules           │
+  └────────┬──────────────┬─────────┘
+           │              │
+      CRITICAL?      MEDIUM+?
+           │              │
+      ┌────▼──┐      ┌───▼────┐
+      │ BLOCK │      │ WARN   │
+      │  PR   │      │ COMMENT│
+      └───────┘      └────────┘
+           │              │
+         ┌─┴──────────────┘
+         │
+  ┌──────▼─────────────────────────┐
+  │ Run Agent 2: issue-reporter    │
+  │ (create GitHub issue)          │
+  │ Output: issue_url.json         │
+  └────────────┬───────────────────┘
+               ↓
+  ┌──────────────────────────────┐
+  │ Post Summary Comment on PR   │
+  │ Link to issue + fixes        │
+  └──────────────────────────────┘
+```
 
-Create organization security policy file:
+---
+
+## 🛠️ Implementation
+
+### Step 1: Review the Real Workflow File
+
+The main orchestration happens in GitHub Actions. View the real workflow:
 
 ```bash
-cd securetrails-vulnerable
+cd apps/securetrails-vulnerable
 
-# Create policy file
-mkdir -p .github/policies
+# View the workflow that orchestrates all agents
+cat .github/workflows/security-policy-check.yml
+```
 
-cat > .github/policies/security-policy.yaml << 'EOF'
-##############################################################################
-# SecureTrails Security Policy
-# Enforced via multi-agent orchestration on every PR
-# Scope: Code review, deployment, compliance
-##############################################################################
+**Expected content:**
+```yaml
+name: Security Policy Check
+on: [pull_request, push]
 
-version: "1.0"
-policy_name: "SecureTrails SDLC Security"
-enforcer_team: "@security-team"
-
-##############################################################################
-# SECTION 1: CODE REVIEW POLICIES
-##############################################################################
-
-code_review_policies:
-  
-  baseline_security:
-    enabled: true
-    agent: "baseline-checker"
-    description: "Static security analysis on code"
-    rules:
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
       
-      - rule_id: "SQL_INJECTION"
-        description: "Detect SQL injection vulnerabilities"
-        severity: "CRITICAL"
-        check_patterns:
-          - pattern: '(f"|f\').*WHERE.*{.*}'
-            description: "F-string SQL queries with interpolation"
-          - pattern: 'query = .*format\('
-            description: "Format-based SQL with user input"
-        files: ["*.py"]
-        remediation: "Use parameterized queries or ORM"
-        
-      - rule_id: "XSS_VULNERABLE"
-        description: "Cross-Site Scripting vulnerabilities"
-        severity: "HIGH"
-        check_patterns:
-          - pattern: 'innerHTML\s*=\s*(?!.*escape)'
-            description: "innerHTML without escaping"
-          - pattern: '{{.*}}(?!.*autoescape)'
-            description: "Template rendering without auto-escape"
-        files: ["*.html", "*.js"]
-        remediation: "Use template escaping or sanitization"
-        
-      - rule_id: "HARDCODED_SECRETS"
-        description: "Hardcoded credentials in source"
-        severity: "CRITICAL"
-        check_patterns:
-          - pattern: '(API_KEY|PASSWORD|TOKEN|SECRET)\s*=\s*["\'](?!.*example)'
-            description: "Hardcoded secret values"
-        files: ["*.py", "*.js", "*.java", "*.go"]
-        remediation: "Move to environment variables or secrets manager"
-        
-      - rule_id: "WEAK_CRYPTO"
-        description: "Insecure cryptographic functions"
-        severity: "HIGH"
-        check_patterns:
-          - pattern: 'md5\('
-            description: "MD5 hash (broken)"
-          - pattern: 'sha1\('
-            description: "SHA-1 hash (deprecated)"
-          - pattern: 'hashlib\.md5'
-            description: "Python MD5 usage"
-        files: ["*.py", "*.js"]
-        remediation: "Use bcrypt, argon2, or SHA-256+"
-        
-      - rule_id: "UNVALIDATED_INPUT"
-        description: "User input used without validation"
-        severity: "MEDIUM"
-        check_patterns:
-          - pattern: 'request\.(args|form|get)\[.*\]'
-            description: "Direct request parameter access"
-        files: ["*.py"]
-        remediation: "Validate and sanitize all user input"
-
-  compliance_policy:
-    enabled: true
-    agent: "compliance-enforcer"
-    description: "Organization compliance requirements"
-    rules:
+      # Step 1: Run baseline security scanner
+      - name: Run Baseline Security Scan
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
       
-      - rule_id: "CODE_REVIEW_APPROVAL"
-        description: "Require security review approval"
-        severity: "HIGH"
-        requirement: "minimum_security_approvals"
-        minimum_approvals: 1
-        required_reviewers: ["@security-team", "@architecture-team"]
-        
-      - rule_id: "TEST_COVERAGE"
-        description: "Security tests required"
-        severity: "MEDIUM"
-        requirement: "security_test_exists"
-        message: "Must include test cases for security changes"
-        
-      - rule_id: "CHANGELOG_ENTRY"
-        description: "Document security changes"
-        severity: "LOW"
-        requirement: "changelog_updated"
-        file: "CHANGELOG.md"
-        message: "Security changes must be documented"
-        
-      - rule_id: "NO_DEBUG_IN_PRODUCTION"
-        description: "Prevent debug mode in production code"
-        severity: "HIGH"
-        check_patterns:
-          - pattern: 'DEBUG\s*=\s*True'
-            description: "Debug mode enabled"
-          - pattern: 'console\.log\(.*\)'
-            description: "Debug logs in production code"
-        remediation: "Remove debug code or wrap in environment checks"
-
-  remediation_policy:
-    enabled: true
-    agent: "remediation-proposer"
-    description: "Automatic fix generation"
-    auto_fix: true
-    rules:
-      - severity_threshold: "MEDIUM"
-        auto_create_pr: true
-        branch_prefix: "security/fix-"
-      - severity_threshold: "HIGH"
-        auto_create_branch: true
-        require_approval_before_merge: true
-      - severity_threshold: "CRITICAL"
-        block_merge: true
-        notify_security_team: true
-        escalation: "create_incident"
-
-##############################################################################
-# SECTION 2: DEPLOYMENT POLICIES  
-##############################################################################
-
-deployment_policies:
-  
-  gate_checks:
-    enabled: true
-    agent: "compliance-enforcer"
-    gates:
+      - run: python .github/agents/baseline-checker.py > findings.json
       
-      - gate_id: "SECURITY_SCAN_PASS"
+      # Step 2: Check severity and decide
+      - name: Parse Findings and Decide
+        run: |
+          CRITICAL=$(grep -c '"severity".*"CRITICAL"' findings.json || echo 0)
+          if [ $CRITICAL -gt 0 ]; then
+            echo "::error::Security violations found! Blocking PR."
+            exit 1
+          fi
+      
+      # Step 3: Create issue if needed
+      - name: Report Findings
+        if: failure()  # Only runs if previous step failed
+        run: python .github/agents/issue-reporter.py findings.json
+      
+      # Step 4: Comment on PR
+      - name: Comment on PR with Findings
+        uses: actions/github-script@v6
+        if: always()
+        with:
+          script: |
+            const fs = require('fs');
+            const findings = JSON.parse(fs.readFileSync('findings.json'));
+            const comment = `## 🔐 Security Policy Check
+
+**Findings**: ${findings.vulnerabilities.length} issues detected
+
+- Critical: ${findings.summary.critical}
+- High: ${findings.summary.high}
+
+See linked issue for details.`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+```
+
+---
+
+### Step 2: Understand the Agent Orchestration
+
+The workflow **coordinates agents** using real data passing:
+
+```bash
+# Agent 1 scans and outputs findings.json
+python .github/agents/baseline-checker.py > findings.json
+
+# Workflow reads findings.json
+CRITICAL=$(grep -c '"severity".*"CRITICAL"' findings.json)
+
+# Decision logic
+if [ $CRITICAL -gt 0 ]; then
+  # Block PR - Agent 2 creates issue
+  python .github/agents/issue-reporter.py findings.json
+  exit 1
+else
+  # Allow PR
+  exit 0
+fi
+```
+
+**Key Insight**: Agents communicate via **JSON files** and **exit codes**, not abstract SDK calls.
+
+---
+
+### Step 3: Test Enterprise Workflow Locally
+
+**Objective**: Simulate the GitHub Actions workflow on your machine.
+
+Create local test script:
+
+```bash
+cat > test-enterprise-workflow.sh << 'EOF'
+#!/bin/bash
+
+echo "🔐 Testing Enterprise Security Workflow..."
+echo "==========================================="
+
+# Simulate GitHub Actions context
+export GITHUB_PR_NUMBER=123
+export GITHUB_REPO="securetrails-vulnerable"
+export GITHUB_EVENT="pull_request"
+
+# Step 1: Run baseline security agent
+echo "Step 1: Running baseline security scan..."
+python .github/agents/baseline-checker.py > /tmp/findings.json
+
+# Step 2: Parse findings and check policy
+echo "Step 2: Evaluating security policy..."
+CRITICAL=$(grep -c '"severity": "CRITICAL"' /tmp/findings.json || echo 0)
+HIGH=$(grep -c '"severity": "HIGH"' /tmp/findings.json || echo 0)
+
+echo "Results: $CRITICAL CRITICAL, $HIGH HIGH severity issues"
+
+# Step 3: Apply policy decision
+if [ "$CRITICAL" -gt "0" ]; then
+    echo "❌ POLICY BLOCKED: Critical vulnerabilities detected"
+    echo "Creating GitHub issue..."
+    python .github/agents/issue-reporter.py /tmp/findings.json
+    exit 1
+elif [ "$HIGH" -gt "3" ]; then
+    echo "⚠️  POLICY WARNING: Multiple high-severity issues"
+    echo "PR can merge with maintainer review"
+    exit 0
+else
+    echo "✅ POLICY PASSED: Ready for merge"
+    exit 0
+fi
+EOF
+
+chmod +x test-enterprise-workflow.sh
+
+# Run the test
+./test-enterprise-workflow.sh
+```
+
+---
+
+### Step 4: (Optional) Deploy to GitHub Actions
+
+**Objective**: See how this runs in actual GitHub CI/CD.
+
+The workflow is already configured in `.github/workflows/security-policy-check.yml`.
+
+To deploy:
+
+```bash
+# Push to GitHub
+git push origin main
+
+# Go to your repo on GitHub
+# Click: Actions tab → Security Policy Check
+
+# Watch workflow run!
+# PR will be blocked if critical issues found
+```
+
+---
+
+## 📊 What This Demonstrates
+
+### Real Capabilities (2026):
+- ✅ Coordinated agent execution via GitHub Actions
+- ✅ Data passing through JSON files
+- ✅ Conditional logic based on findings
+- ✅ PR blocking/approval decisions
+- ✅ Automatic issue creation
+- ✅ Audit trail in workflow logs
+
+### Enterprise Patterns Shown:
+- ✅ Multiple agents working in sequence
+- ✅ Policy-based decision making (exit codes)
+- ✅ Integration with GitHub native features
+- ✅ Scalable to organization-wide use
+- ✅ Reproducible and auditable
+
+---
+
+## 🎯 Key Takeaways
+
+**What You Actually Did:**
+1. Configured GitHub Actions to orchestrate multiple agents
+2. Implemented policy enforcement via workflow decisions
+3. Used JSON file passing for agent communication
+4. Set up automated security blocking on PRs
+5. Created enterprise-ready security automation
+
+**What This Means:**
+- 🎯 This is **production-ready** today (2026)
+- 🎯 Scales to thousands of repositories
+- 🎯 Integrates seamlessly with GitHub native tools
+- 🎯 No complex SDK or framework needed
+- 🎯 Follows Unix principle: simple tools doing one thing well
+
+---
+
+## ✅ Exercise Complete
+
+**Congratulations!** You've completed all 4 exercises!
+
+You've demonstrated:
+- ✅ SAST security scanning (Exercise 1)
+- ✅ Supply chain vulnerability analysis (Exercise 2)
+- ✅ Agent coordination and data passing (Exercise 3)
+- ✅ Enterprise policy automation (Exercise 4)
+
+---
+
+## 📚 Next Steps
+
+### For Your Organization:
+1. **Deploy** these agents to your repositories
+2. **Customize** detection patterns for your tech stack
+3. **Integrate** with your existing CI/CD
+4. **Train** your team on the patterns demonstrated
+
+### Advanced Topics:
+- Create custom detection patterns for domain-specific issues
+- Integrate with SIEM or security information management tools
+- Set up Slack/Teams notifications for security findings
+- Create custom remediation agents for your codebase
+
+---
+
+**Total Workshop Duration**: 120 minutes ✅  
+**Exercises Completed**: 4/4 ✅  
+**Ready for Production**: Yes ✅
+
+
         description: "All security scans must pass"
         blocking: true
         check_type: "status_check"
