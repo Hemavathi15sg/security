@@ -1,7 +1,7 @@
-# Exercise 2: MCP & Dependency Supply Chain Security
+# Exercise 2: Dependency Supply Chain Security (20 min)
 
 **Duration**: 20 minutes  
-**Expected Time to Complete**: 20 min
+**Level**: ⭐⭐ Intermediate  
 
 ---
 
@@ -9,500 +9,297 @@
 
 By the end of this exercise, you will:
 
-✅ Configure and use Model Context Protocol (MCP) for external tool access  
-✅ Deploy a custom `dependency-supply-chain-scout` agent using Copilot SDK  
-✅ Query GitHub security advisories via MCP  
+✅ Understand supply chain vulnerabilities in dependencies  
+✅ Run a custom Python agent to scan for CVEs  
 ✅ Generate a Software Bill of Materials (SBOM)  
-✅ Create automated remediation PRs for vulnerable dependencies  
+✅ Identify outdated packages with security issues  
+✅ Get recommendations for vulnerability remediation  
 
 ---
 
-## 📖 Scenario Context
+## 📖 Scenario
 
-Executive question: **"Are we using any packages with known security vulnerabilities?"**
+Executive: **"Are we using any packages with known security vulnerabilities?"**
 
-Supply chain security is critical. A single vulnerable dependency can compromise the entire application. Your task: Use MCP (Model Context Protocol) and a custom agent to map all dependencies, check for CVEs, and propose updates.
-
-This demonstrates how agents can extend Copilot with access to external tools (GitHub APIs, CVE databases, package registries).
-
----
-
-## 🔍 Task Overview
-
-In this exercise, you'll:
-1. Set up GitHub MCP (Model Context Protocol) server
-2. Deploy `dependency-supply-chain-scout` custom agent
-3. Query CVE databases via MCP tools
-4. Generate SBOM report
-5. Create fix PRs automatically
+The answer: **Very likely.** The SecureTrails app uses outdated dependencies with known CVEs. Your task:
+- ✅ Scan all dependencies
+- ✅ Find vulnerable ones
+- ✅ Get fix recommendations
+- ✅ Understand supply chain risk
 
 ---
 
-## 📋 Step-by-Step Instructions
+## 📝 Important Clarification: File Types in This Workshop
 
-### Step 1: Configure GitHub MCP Server
+**Two Different File Types:**
 
-**Objective**: Enable MCP so agents can access GitHub APIs.
+| What | File Type | Purpose | Example |
+|------|-----------|---------|---------|
+| **Exercise Instructions** | `.md` (Markdown) | What YOU read to learn | `2-mcp-supply-chain.md` (this file) |
+| **Agent Code** | `.py` (Python) | Actual executable code that runs | `.github/agents/dependency-scout.py` |
 
-Create MCP configuration file:
+**Key Point:**
+- **This file** (`.md`) = Instructions for you to follow
+- **Agent files** (`.py`) = Real Python scripts that detect vulnerabilities
+- You RUN the `.py` agents, you READ the `.md` exercises
+
+---
+
+## 🛠️ What You're Running
+
+**Agent File:** [`.github/agents/dependency-scout.py`](../../.github/agents/dependency-scout.py)  
+**Type**: Standalone Python script (`*.py` executable)  
+**What it does:**
+- Parses `requirements.txt`
+- Looks up known CVEs for each package
+- Generates SBOM (Software Bill of Materials)
+- Recommends package updates
+- Outputs JSON findings
+
+---
+
+## 🚀 Run The Dependency Scout Agent
+
+### Step 1: Execute the Agent
 
 ```bash
-# Navigate to project root
-cd securetrails-vulnerable
+# Navigate to the vulnerable app
+cd apps/securetrails-vulnerable
 
-# Create MCP config directory
-mkdir -p .copilot
+# Run the dependency scanning agent
+python ../../.github/agents/dependency-scout.py
 
-# Create MCP configuration
-cat > .copilot/mcp-config.json << 'EOF'
-{
-  "version": "0.1.0",
-  "servers": {
-    "github": {
-      "url": "npx",
-      "args": ["@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_TOKEN": "<your-github-token>"
-      }
-    },
-    "git": {
-      "url": "npx",
-      "args": ["@modelcontextprotocol/server-git"],
-      "env": {
-        "GIT_REPOSITORY_PATH": "."
-      }
-    }
-  }
-}
-EOF
+# Or from project root:
+python .github/agents/dependency-scout.py
 ```
 
-**Initialize MCP servers:**
-```bash
-# Install GitHub MCP server
-npm install -g @modelcontextprotocol/server-github
-
-# Verify MCP is ready
-gh copilot mcp init github
-```
+**What happens:**
+1. ✅ Agent reads `requirements.txt`
+2. ✅ Checks each package version against known CVE database
+3. ✅ Identifies vulnerable versions and their CVE IDs
+4. ✅ Recommends updated versions
+5. ✅ Outputs JSON report with findings
 
 **Expected output:**
-```
-✓ GitHub MCP Server initialized
-✓ Available Tools: search_code, search_issues, search_repos, get_issues
-✓ Authenticated as: <your-username>
-```
-
----
-
-### Step 2: Query Security Advisories via MCP
-
-**Objective**: Access GitHub's vulnerability database through MPC tools.
-
-Use Copilot to access MCP tools:
-
-```bash
-gh copilot suggest "Use GitHub MCP tools to search for security advisories. For each package in requirements.txt (Flask, requests, SQLAlchemy, Werkzeug, Jinja2), find published CVE vulnerabilities, their severity, and fix versions. Format as a structured report with package name, current version, CVE ID, severity, and recommended version."
-```
-
-**The agent will use MCP tools like:**
-- `search_code`: Find version declarations
-- `search_issues`: Find GitHub issues/PRs about vulnerabilities
-- Query GitHub Security Advisory database
-
-**Expected findings:**
-```
-DEPENDENCY VULNERABILITY REPORT
-================================
-
-Package: Flask
-- Current: 1.1.0
-- CVE-2021-21342: Remote Code Execution via Werkzeug (CRITICAL)
-- CVE-2021-21409: Development server with reloader can execute arbitrary code (HIGH)
-- Recommended: 2.3.2
-
-Package: requests
-- Current: 2.24.0
-- CVE-2021-33503: Improper input validation in URL parsing (MEDIUM)
-- Recommended: 2.28.1
-
-Package: SQLAlchemy
-- Current: 1.3.0
-- SQL Injection via legacy sqlalchemy.ext.sqlphrase (HIGH)
-- Recommended: 2.0.8
-
-... (more packages)
-```
-
----
-
-### Step 3: Initialize & Deploy Custom Agent
-
-**Objective**: Deploy the `dependency-supply-chain-scout` agent.
-
-The agent is a custom Copilot SDK implementation that:
-- Parses `requirements.txt` and `package.json`
-- Cross-references with CVE databases via MCP
-- Generates structured SBOM
-- Proposes automated fixes
-
-**Initialize the agent:**
-
-```bash
-# Agent is provided in .github/agents directory
-ls -la .github/agents/dependency-scout.py
-
-# Register agent with Copilot SDK
-gh copilot agent register \
-  --agent-path .github/agents/dependency-scout.py \
-  --name "dependency-supply-chain-scout" \
-  --description "Scans dependencies for known vulnerabilities and generates SBOM"
-```
-
-**Verify agent registered:**
-```bash
-gh copilot agent list
-```
-
-**Expected output:**
-```
-Registered Agents:
-- dependency-supply-chain-scout (active)
-  Location: .github/agents/dependency-scout.py
-  Type: Custom
-  Status: Ready
-```
-
----
-
-### Step 4: Run Agent to Generate SBOM
-
-**Objective**: Execute the agent to analyze all dependencies.
-
-Invoke the agent with a specific prompt:
-
-```bash
-gh copilot agent run dependency-supply-chain-scout \
-  --prompt "Analyze requirements.txt and generate a complete Software Bill of Materials (SBOM). For each dependency: list the package name, version, license, severity of known vulnerabilities (CRITICAL/HIGH/MEDIUM/LOW), CVE IDs, and recommended update version. Output as JSON with structure: {packages: [{name, version, license, vulnerabilities: [{cve_id, severity, description}], recommended_version}]}"
-```
-
-**Agent runs these steps internally:**
-1. Parse `requirements.txt`
-2. Query GitHub Security Advisories via MCP
-3. Cross-check with CVE databases
-4. Generate structured report
-5. Store SBOM in `sbom.json`
-
-**Expected SBOM Output:**
 ```json
 {
-  "sbom_version": "1.3",
-  "generated_at": "2026-02-20T10:30:00Z",
-  "packages": [
+  "packages_analyzed": 8,
+  "vulnerable_packages": [
     {
       "name": "Flask",
-      "version": "1.1.0",
-      "license": "BSD",
-      "vulnerabilities": [
+      "current_version": "1.1.0",
+      "severity_issues": [
         {
           "cve_id": "CVE-2021-21342",
           "severity": "CRITICAL",
-          "description": "Werkzeug RCE via environment reloader"
+          "description": "Remote Code Execution via Werkzeug",
+          "affected_versions": "< 2.0.0",
+          "fix_available": true,
+          "recommended_version": "2.3.2"
+        },
+        {
+          "cve_id": "CVE-2021-21409",
+          "severity": "HIGH",
+          "description": "Development server reloader can execute code",
+          "recommended_version": "2.3.2"
         }
-      ],
-      "recommended_version": "2.3.2"
+      ]
     },
     {
       "name": "requests",
-      "version": "2.24.0",
-      "license": "Apache-2.0",
-      "vulnerabilities": [
+      "current_version": "2.24.0",
+      "severity_issues": [
         {
           "cve_id": "CVE-2021-33503",
           "severity": "MEDIUM",
-          "description": "Improper URL validation"
+          "description": "URL parsing vulnerability",
+          "recommended_version": "2.28.1"
         }
-      ],
-      "recommended_version": "2.28.1"
+      ]
+    },
+    {
+      "name": "SQLAlchemy",
+      "current_version": "1.3.0",
+      "severity_issues": [
+        {
+          "cve_id": "CVE-2021-XXXXX",
+          "severity": "HIGH",
+          "description": "SQL injection via legacy sqlphrase",
+          "recommended_version": "2.0.8"
+        }
+      ]
     }
-    // ... more packages
   ],
+  "sbom": {
+    "format": "SPDX",
+    "packages": ["Flask==1.1.0", "requests==2.24.0", "SQLAlchemy==1.3.0", "..."],
+    "generated_at": "2026-02-21T..."
+  },
   "summary": {
-    "total_packages": 7,
+    "total_packages": 8,
+    "secure_packages": 1,
     "packages_with_vulnerabilities": 5,
-    "critical_vulnerabilities": 2,
-    "high_vulnerabilities": 3,
-    "medium_vulnerabilities": 2
+    "critical_issues": 2,
+    "high_issues": 2,
+    "medium_issues": 1
   }
 }
 ```
 
-**Your Task:**
-- [ ] Agent successfully generated SBOM
-- [ ] Verify `sbom.json` created in project root
-- [ ] Review vulnerability summary
-- [ ] Note packages requiring urgent updates
-
 ---
 
-### Step 5: Invoke Remediation Agent
+### Step 2: Understand the Findings
 
-**Objective**: Automatically propose fixes for vulnerable dependencies.
+The agent report shows:
 
-Chain to the remediation agent:
+**Critical Severity** = Must fix before production  
+**High Severity** = Fix soon after launch  
+**Medium Severity** = Plan to fix in next release  
 
-```bash
-gh copilot agent run remediation-proposer \
-  --prompt "Based on the SBOM (sbom.json), generate a new requirements.txt with all packages updated to their recommended secure versions. Ensure compatibility by testing import statements. Create a detailed commit message explaining the security fixes. Return the updated requirements.txt content and a summary of changes."
+For SecureTrails:
 ```
+✗ Flask 1.1.0 has 2 CVEs (CRITICAL + HIGH)
+✗ Requests 2.24.0 has 1 CVE (MEDIUM)
+✗ SQLAlchemy 1.3.0 has 1 CVE (HIGH)
 
-**This agent:**
-- Reads `sbom.json` findings
-- Updates each package to recommended version
-- Tests for compatibility
-- Generates commit message
-- Prepares for PR creation
-
----
-
-### Step 6: Create Remediation PR
-
-**Objective**: Submit the dependency updates as a PR.
-
-Create a branch and PR:
-
-```bash
-# Create feature branch
-git checkout -b security/update-dependencies
-
-# Copy updated requirements
-# (Agent output provides new requirements.txt)
-
-# Commit changes
-git add requirements.txt
-git commit -m "security: Update vulnerable dependencies
-
-This commit updates the following packages to address security vulnerabilities:
-- Flask 1.1.0 → 2.3.2 (CVE-2021-21342, CVE-2021-21409)
-- requests 2.24.0 → 2.28.1 (CVE-2021-33503)
-- SQLAlchemy 1.3.0 → 2.0.8 (SQL injection vectors)
-
-Resolves Exercise 2: Supply Chain Security Audit
-
-SBOM Report: sbom.json
-Testing Status: ✓ Imports verified
-Compatibility: ✓ No breaking changes detected"
-
-# Push and create PR
-git push origin security/update-dependencies
-
-gh pr create \
-  --title "[SECURITY] Update vulnerable dependencies" \
-  --label "security,dependencies" \
-  --body "## Supply Chain Security Update
-
-### Vulnerabilities Fixed
-✓ Flask CRITICAL RCE  (CVE-2021-21342)
-✓ requests MEDIUM URL parsing (CVE-2021-33503)
-✓ SQLAlchemy HIGH SQL injection vectors
-
-### Summary
-Updated 5 packages to latest secure versions. All imports verified compatible.
-
-### SBOM
-See \`sbom.json\` for complete Software Bill of Materials
-
-### Testing
-- [x] Import statements verified
-- [x] No breaking API changes
-- [x] Application startup tested
-
-Generated by Exercise 2: Dependency Supply Chain Scout Agent"
-```
-
-**Verify PR created:**
-```bash
-gh pr list --label security
+Assessment: NOT PRODUCTION READY without updates
 ```
 
 ---
 
-### Step 7: Document Findings
+### Step 3: What "Supply Chain Security" Means
 
-**Objective**: Create a comprehensive supply chain audit record.
+**Your code might be perfect, but:**
 
-Create GitHub issue:
+```
+If you use vulnerable dependencies...
+    ↓
+Attackers exploit those vulnerabilities
+    ↓
+Your security is broken, independent of code quality
+    ↓
+One vulnerable package = whole system compromised
+```
+
+**Real attack example:**
+```
+1. Attacker finds vulnerability in Flask 1.1.0
+2. Searches GitHub for projects using Flask 1.1.0
+3. Finds your SecureTrails app
+4. Exploits the Flask vulnerability
+5. Gets remote code execution on your server
+6. Your beautiful security-reviewed code doesn't matter!
+```
+
+**Solution:** Keep all dependencies updated!
+
+---
+
+### Step 4: Review the SBOM Output
+
+SBOM = Software Bill of Materials (inventory of all your code components)
+
+The agent provides:
+- ✅ List of all packages you use
+- ✅ Current versions
+- ✅ Which have known vulnerabilities  
+- ✅ CVE IDs and descriptions
+- ✅ Recommended upgrade versions
+- ✅ Risk severity breakdown
+
+**Key Numbers:**
+```
+Critical: 2       ← Must fix NOW before launch
+High: 2          ← Fix ASAP 
+Medium: 1        ← Plan to fix in next release
+Total: 8 packages
+```
+
+---
+
+### Step 5: Create an Issue to Document Findings
+
+Create a GitHub issue with the findings:
 
 ```bash
+cat > dependency-findings.json << 'EOF'
+# Paste the agent output here (the JSON from Step 1)
+EOF
+
+# Create issue documenting your findings
 gh issue create \
   --title "[SECURITY AUDIT] Exercise 2: Supply Chain Analysis" \
   --label "security,review-exercise" \
   --body "## Supply Chain Security Audit - Exercise 2
 
-### Scope
-SecureTrails requirements.txt analyzed for vulnerable dependencies
+Agent scanned SecureTrails dependencies and found **5 packages with vulnerabilities**.
 
-### Tool Used
-- Agent: \`dependency-supply-chain-scout\`
-- Method: MCP GitHub Security Advisories + CVE databases
-- SBOM Generated: \`sbom.json\`
+### Critical Issues (Must Fix)
+- Flask 1.1.0: CVE-2021-21342 (RCE) + CVE-2021-21409 (RCE)
 
-### Key Findings
+### High Issues (Fix ASAP)
+- SQLAlchemy 1.3.0: CVE-2021-XXXXX (SQL injection)
+- Requests 2.24.0: Encoding issues
 
-#### Critical Issues: 2
-- Flask 1.1.0: Remote Code Execution (CVE-2021-21342)
-- Werkzeug incompatibility cascade
+### Medium Issues
+- Various optional dependencies with low-risk CVEs
 
-#### High Risk Issues: 3
-- SQLAlchemy 1.3.0: SQL injection patterns
-- Requests encoding issues
-- Jinja2 sandbox escape potential
+### Summary
+Current Status: **HIGH RISK** ⚠️
+- 5 out of 8 packages have known vulnerabilities
+- 2 critical remote code execution vulnerabilities
+- All CRITICAL/HIGH should be fixed before launch
 
-#### Medium Risk Issues: 2
-- Various URL parsing issues
-- Optional dependency concerns
-
-### Statistics
-- Total Dependencies: **7**
-- With Known CVEs: **5** (71%)
-- Critical Vulnerabilities: **2**
-- High Vulnerabilities: **3**
-- Medium Vulnerabilities: **2**
-
-### Remediation Status
-✓ Remediation PR created: [Link to PR]
-✓ All updates maintain compatibility
-✓ No breaking changes detected
-
-### Software Bill of Materials (SBOM)
-Full SBOM available at: \`sbom.json\`
-
-### Impact Assessment
-Current state: **HIGH RISK** ⚠️
-After updates: **LOW RISK** ✓
-
-### Next Steps
-1. Peer review PR
-2. Run security tests
-3. Merge when approved
-4. Monitor for future vulnerabilities
-"
+### Next: Proceed to Exercise 3"
 ```
 
 ---
 
-## ✅ Acceptance Criteria
+## 🎯 What This Demonstrates
 
-- [ ] MCP GitHub server configured and initialized
-- [ ] Queried security advisories via MCP tools
-- [ ] `dependency-supply-chain-scout` agent deployed and registered
-- [ ] SBOM generated successfully (`sbom.json` created)
-- [ ] Identified ≥5 vulnerable dependencies
-- [ ] Generated remediation PR with updated `requirements.txt`
-- [ ] Created GitHub issue documenting findings
-- [ ] Verified all ≥3 packages with CRITICAL/HIGH vulnerabilities flagged
+✅ **Automated vulnerability scanning** - No manual package checking  
+✅ **Supply chain risk assessment** - Understanding dependency security  
+✅ **SBOM generation** - Complete inventory of components  
+✅ **Risk prioritization** - Which vulnerabilities matter most  
+✅ **Actionable recommendations** - Specific versions to upgrade to  
 
 ---
 
-## 🖼️ Expected Output
+## ✅ Exercise Complete
 
-SBOM Summary section:
-```
-SBOM Analysis Complete
-======================
-Total Packages: 7
-Vulnerable Packages: 5
-Critical Issues: 2
-High Issues: 3
-Medium Issues: 2
-Remediation: PR #45 created with updates
-Status: Ready for Review
-```
+**What You Learned:**
+- SecureTrails has 5 packages with known vulnerabilities
+- Flask is CRITICAL (2 CVEs permitting remote code execution)
+- Requests and SQLAlchemy have HIGH severity issues
+- SBOM scanning is essential before every deployment
+- Supply chain security = as important as code review
+
+**Key Insight:** Perfect code + vulnerable dependencies = pwned application.
 
 ---
 
-## 🆘 Troubleshooting
+## 🚀 Next Steps
 
-### Issue: "MCP server not responding"
-```bash
-# Reinitialize MCP
-gh copilot mcp init github --force
+**In Exercise 3**, you'll:
+- Run the **secret-detector** agent (`.py` file)
+- See how agents work together
+- Document findings in GitHub
 
-# Check MCP status
-gh copilot mcp status
-```
-
-### Issue: "Agent not found"
-```bash
-# Verify agent file exists
-ls .github/agents/dependency-scout.py
-
-# Re-register agent
-gh copilot agent register --agent-path .github/agents/dependency-scout.py
-```
-
-### Issue: "SBOM not generated"
-```bash
-# Check agent logs
-gh copilot agent run dependency-supply-chain-scout --verbose
-
-# Ensure MCP tools available
-gh copilot mcp tools list
-```
+**In Exercise 4**, you'll:
+- Auto-block PRs with vulnerabilities
+- Integrate agents into GitHub Actions
+- Enterprise-scale security automation
 
 ---
 
 ## 📚 Resources
 
-- **[MCP Documentation](./resources/reference.md)** | [Official Site](https://modelcontextprotocol.io/)
-- **[GitHub Security Advisories](https://docs.github.com/en/code-security/security-advisories)**
-- **[SBOM Standards (CYCLONEDX)](https://cyclonedx.org/)**
-- **[Dependency Scanning Best Practices](./resources/reference.md)**
-- **[Agents Reference Guide](./resources/agents-reference.md)**
+- [GitHub Advisory Database](https://github.com/advisories)
+- [OWASP: Use of Untrusted Libraries](https://owasp.org/www-project-top-10-code-analysis-issues/#a1-use-of-untrusted-libraries)
+- [SBOM Standard: CYCLONEDX](https://cyclonedx.org/)
+- [CVE Database](https://cve.mitre.org/)
+- [Agent Reference Guide](./resources/agents-reference.md)
 
 ---
 
-## 🎯 Key Concepts
-
-### What is MCP (Model Context Protocol)?
-
-MCP connects Copilot agents to external tools and data sources:
-- **API Access**: GitHub GraphQL, CVE databases, package registries
-- **Tool Registry**: Agents can discover and use available tools
-- **Context Passing**: Share findings between agents seamlessly
-
-### Agent Chaining in This Exercise
-
-```
-dependency-scout agent
-    ↓ (discovers vulnerabilities)
-remediation-proposer agent
-    ↓ (proposes fixes)
-GitHub PR
-    ↓ (automated review)
-```
-
----
-
-## 📌 Next Steps
-
-Excellent work! You've demonstrated how to:
-- **Integrate MCP** for external tool access
-- **Deploy custom agents** via Copilot SDK
-- **Generate SBOM** reports
-- **Automate remediation** pull requests
-
-### What's Next?
-
-In **[Exercise 3: Secret Scanner & Agent Chaining](./3-secret-scanner-agent.md)**, you'll:
-- Deploy a `secret-detector-enforcer` agent
-- Demonstrate **agent-to-agent communication**
-- Block commits containing exposed credentials
-- Automatically create issues and fix PRs
-
-**Ready?** → **[Exercise 3: Secret Scanner →](./3-secret-scanner-agent.md)**
-
----
-
-**⏱️ Time Elapsed**: ~40 minutes cumulative  
-**Exercises Completed**: 3/5 ✓
+**⏱️ Time**: 20 min | **Exercises**: 3/5
