@@ -148,7 +148,7 @@ gh auth login
 gh auth status
 # Expected: Logged in to github.com with account <your-username>
 
-# Verify Copilot CLI (NOT 'gh copilot')
+# Verify Copilot CLI (standalone tool, NOT deprecated 'gh copilot' extension)
 copilot --version
 # Expected: version 0.0.414 or higher
 ```
@@ -264,11 +264,11 @@ VS Code
 In VS Code terminal, verify Copilot CLI works:
 
 ```bash
-# Test Copilot CLI version
-gh copilot --version
+# Test Copilot CLI version (use standalone 'copilot', NOT 'gh copilot')
+copilot --version
 
 # Test Copilot with a simple explanation
-gh copilot explain app.py
+copilot explain app.py
 ```
 
 **When prompted, provide a test analysis request:**
@@ -310,14 +310,14 @@ Verify your setup by checking these items:
 
 - [ ] VS Code installed and running
 - [ ] GitHub Copilot extension installed in VS Code
-- [ ] `gh copilot --version` returns a version number (terminal)
+- [ ] `copilot --version` returns a version number ≥ 0.0.414 (terminal)
 - [ ] `gh auth status` shows authenticated account (terminal)
 - [ ] SecureTrails repository cloned locally
 - [ ] Project opened in VS Code
 - [ ] Python venv created and activated
 - [ ] Dependencies installed (`pip list` shows Flask, requests, etc.)
 - [ ] Python interpreter set to venv in VS Code
-- [ ] `gh copilot explain app.py` works (returns analysis)
+- [ ] `copilot explain app.py` works (returns analysis)
 
 **All checkboxes complete?** → You're ready for Exercise 1! ✅
 
@@ -378,18 +378,29 @@ venv\Scripts\Activate.ps1
 python --version  # Should show Python 3.9+
 ```
 
-### Issue: `gh copilot` command returns "not found"
+### Issue: `copilot` command returns "not found" or `gh copilot` (deprecated extension) is installed
 ```bash
-# Check if gh extension is installed
+# The 'gh copilot' extension is DEPRECATED as of Oct 2025
+# You need the standalone 'copilot' CLI tool instead
+
+# Check if you have the old extension (remove if present)
 gh extension list
 
-# If not listed, install it
-gh extension install github/gh-copilot
+# If you see 'copilot' in the list, remove it
+gh extension remove github/gh-copilot
 
-# Check installation directory
-ls ~/.config/gh/extensions/  # On Mac/Linux
-# Or
-%APPDATA%\GitHub CLI\extensions  # On Windows
+# Install the standalone copilot tool
+# Option 1: Homebrew (Mac/Linux)
+brew install copilot-cli
+
+# Option 2: npm (all platforms)
+npm install -g @github/copilot
+
+# Option 3: Windows (winget)
+winget install GitHub.Copilot
+
+# Verify installation
+copilot --version
 ```
 
 ### Issue: "Authorization required" error
@@ -431,9 +442,9 @@ source venv/bin/activate          # Mac/Linux
 venv\Scripts\activate.bat         # Windows (Command Prompt)
 venv\Scripts\Activate.ps1         # Windows (PowerShell)
 
-# Test Copilot CLI
-gh copilot --version
-gh copilot explain app.py
+# Test Copilot CLI (standalone tool, NOT 'gh copilot' extension)
+copilot --version
+copilot explain app.py
 
 # Check Python
 python --version
