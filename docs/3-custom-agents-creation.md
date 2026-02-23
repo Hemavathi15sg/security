@@ -158,11 +158,9 @@ Your agent is now **selected and active**. The agent responds with tailored guid
 
 ---
 
-## 💬 Step 5: Ask Questions to Your Custom Agent
+## 💬 Step 5: Ask Your Questions to the Agent
 
-With your agent selected, you can now ask security questions:
-
-![Question Prompt to Custom Agent](./images/questionforcustomagent.png)
+Now you can ask security questions and get tailored responses:
 
 **Example questions:**
 
@@ -177,27 +175,7 @@ With your agent selected, you can now ask security questions:
 "Show me the before/after code for this vulnerability"
 ```
 
-**The agent responds** with guidance from your remediation instructions:
-- ✅ References your specific app (SecureTrails)
-- ✅ Points to exact line numbers (line 47)
-- ✅ Provides step-by-step fixes
-- ✅ Shows code examples
-- ✅ Includes testing strategy
-
----
-
-## 🔑 Key Insight: Agent Reference in Terminal
-
-Notice at the bottom of the terminal:
-
-```
-@sql-injection-remediation-guide.agent.md • Remaining reqs.: 42%
-```
-
-This shows:
-- ✅ Active agent file path
-- ✅ Context window usage
-- ✅ You're using the agent for this session
+The agent responds with step-by-step guidance tailored to your team's needs.
 
 ---
 
