@@ -98,25 +98,22 @@ Extensions Marketplace
 
 ---
 
-### Step 3: Install GitHub Copilot CLI Locally
+### Step 3: Install GitHub Copilot CLI
 
-Open a terminal on your machine and run:
+Open a terminal and run:
 
 ```bash
-# Install Copilot CLI extension (if not already installed)
+# Install Copilot CLI as GitHub CLI extension
 gh extension install github/gh-copilot
 
-# Or upgrade if already installed
-gh extension upgrade github/gh-copilot
-
-# Verify installation
-gh copilot --version
+# Verify installation (should work after this)
+copilot --version
+# Expected: version 0.0.414 or higher
 ```
 
-**Expected Output:**
-```
-gh-copilot/1.x.x (or newer)
-```
+**Install Links:**
+- [GitHub CLI Installation](https://cli.github.com/)
+- [Copilot CLI GitHub Repo](https://github.com/github/copilot-cli)
 
 **Troubleshooting:**
 ```bash
@@ -149,18 +146,11 @@ gh auth login
 ```bash
 # Check GitHub CLI status
 gh auth status
+# Expected: Logged in to github.com with account <your-username>
 
-# Check Copilot CLI access
-gh copilot --version
-```
-
-**Expected Output:**
-```
-Logged in to github.com with account <your-username>
-  - Active account: true
-  - Git operations: HTTPS
-  - Token: gho_***...
-  - Scopes: repo, workflow, gist, read:org
+# Verify Copilot CLI (NOT 'gh copilot')
+copilot --version
+# Expected: version 0.0.414 or higher
 ```
 
 ---
@@ -177,26 +167,6 @@ cd securetrails-workshop
 # Verify directory structure
 ls -la
 ```
-
-**Expected Directory Structure:**
-```
-securetrails-workshop/
-├── app.py                    # Flask backend (contains SQL injection, auth issues)
-├── requirements.txt          # Python packages (includes vulnerable versions)
-├── templates/
-│   ├── login.html           # XSS vulnerability in user input
-│   ├── trails.html          # IDOR (Insecure Direct Object Reference)
-│   └── admin.html           # Broken authentication checks
-├── static/js/
-│   └── app.js               # Client-side injection points
-├── .env.example             # Exposed secrets example
-├── Dockerfile               # Security misconfiguration
-├── database.db              # SQLite test data
-└── README.md                # Application documentation
-```
-
-**This is your test subject for the entire workshop!**
-
 ---
 
 ### Step 6: Open Project in VS Code
