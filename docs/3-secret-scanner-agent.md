@@ -54,7 +54,76 @@ Exit code: 1 (secrets found = block commit)
 
 ---
 
-### Step 2: Review Findings
+## 🛠️ Agent Deep Dive: secret-detector.py
+
+### How Credential Detection Works
+
+```bash
+# View agent source
+cat .github/agents/secret-detector.py | head -80
+```
+
+**Two detection methods:**
+
+**Method 1: Pattern Matching (Regex)**
+```python
+PATTERNS = {
+    'API_KEY': r'[a-z0-9]{20,}',           # Long random strings
+    'JWT_SECRET': r'JWT_SECRET\s*=',       # Direct secret names
+    'DB_PASSWORD': r'password["\']?\s*[:=]',  # Credential patterns
+    'AWS_KEY': r'AKIA[0-9A-Z]{16}',       # AWS key format
+}
+```
+
+**Method 2: Entropy Analysis**
+```python
+def calculate_entropy(string):
+    """If string looks random = likely a secret"""
+    entropy = 0
+    for char in set(string):
+        frequency = string.count(char) / len(string)
+        entropy -= frequency * log2(frequency)
+    return entropy
+
+# High entropy (>= 4.0) = suspicious = likely secret
+if entropy > 4.0:
+    flag_as_secret()
+```
+
+### Real Example From SecureTrails
+
+```python
+# Found in app.py:12
+JWT_SECRET = 'super-secret-key-12345'  ← Pattern match: JWT_SECRET =
+
+# Found in .env.example:3  
+db_password = 'postgres://user:PASSWORD123@...'  ← Pattern match: password
+
+# Also catches random-looking entropy
+api_key = 'sk_live_51234567890abcdefghijklmnopqrstuv'  ← High entropy
+```
+
+### Hands-On: Add New Secret Patterns
+
+```bash
+# Edit the agent
+code .github/agents/secret-detector.py
+
+# Find PATTERNS dict and add:
+'GITHUB_TOKEN': r'ghp_[A-Za-z0-9_]{36}',     # GitHub Personal Access Token
+'STRIPE_KEY': r'sk_live_[A-Za-z0-9]{24}',   # Stripe live key
+```
+
+Test your changes:
+
+```bash
+python .github/agents/secret-detector.py
+
+# Should now catch GitHub tokens and Stripe keys
+python .github/agents/secret-detector.py | grep -E "GITHUB_TOKEN|STRIPE"
+```
+
+---
 
 Notice the agent found:
 - ✅ Hardcoded JWT secret

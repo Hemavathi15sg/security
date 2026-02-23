@@ -56,6 +56,72 @@ Status: HIGH RISK - Not production ready
 
 ---
 
+## 🛠️ Agent Deep Dive: dependency-scout.py
+
+### How the Agent Works
+
+```bash
+# View the agent source
+cat .github/agents/dependency-scout.py | head -60
+```
+
+**Key logic:**
+```python
+1. Parse requirements.txt
+2. For each package:
+   - Get current version
+   - Look up CVEs in vulnerability database
+   - Compare version against affected ranges
+   - Return findings + recommended upgrades
+
+3. Generate SBOM (Software Bill of Materials)
+4. Output JSON with severity breakdown
+```
+
+### Vulnerability Database Logic
+
+```python
+# Simplified - agent contains real CVE data
+CVE_DATABASE = {
+    'Flask': {
+        '1.1.0': [
+            {'cve_id': 'CVE-2021-21342', 'severity': 'CRITICAL'},
+            {'cve_id': 'CVE-2021-21409', 'severity': 'HIGH'},
+        ],
+        '< 2.0.0': 'update_to: 2.3.2'
+    },
+    'requests': {
+        '< 2.28.0': [
+            {'cve_id': 'CVE-2021-33503', 'severity': 'MEDIUM'},
+        ]
+    }
+}
+```
+
+### Hands-On: Expand CVE Detection
+
+Add detection for Werkzeug vulnerabilities:
+
+```bash
+# Edit agent
+code .github/agents/dependency-scout.py
+
+# Find CVE_DATABASE section and add:
+'Werkzeug': {
+    '< 2.0.0': [
+        {'cve_id': 'CVE-2021-XXXXX', 'severity': 'HIGH', 'issue': 'Path traversal'}
+    ]
+},
+```
+
+Test your changes:
+
+```bash
+python .github/agents/dependency-scout.py | grep Werkzeug
+```
+
+---
+
 ### Step 3: Create GitHub Issue
 
 ```bash

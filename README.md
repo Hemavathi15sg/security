@@ -31,12 +31,12 @@ As a newly hired **Security Engineer**, your mission is to **discover and docume
 
 By the end of this 2-hour workshop, you will:
 
-✅ Master **GitHub Copilot agents** for automated security scanning  
-✅ Deploy **custom security agents** using Copilot SDK and Python  
-✅ Implement **agent chaining** — composing multiple agents to solve complex security problems  
-✅ Integrate **Model Context Protocol (MCP)** for external tool access (CVE databases, Git APIs)  
-✅ Orchestrate **multi-agent workflows** in GitHub Actions for enterprise security policies  
-✅ Apply **security best practices** to your own repositories  
+✅ Master **GitHub Copilot CLI** for interactive security analysis  
+✅ Deploy **custom security agents** using Python (not aspirational SDK)  
+✅ **Modify agent detection patterns** to customize for your needs  
+✅ **Build your own security agents** from scratch  
+✅ Integrate **agents into GitHub Actions** for enterprise workflow automation  
+✅ Understand **agent composition and chaining** patterns  
 
 ---
 
@@ -82,12 +82,13 @@ gh auth login
 | # | Exercise | Duration | Difficulty | Focus | Topic |
 |---|----------|----------|-----------|-------|-------|
 | **0** | [Prerequisites & Setup](./docs/0-prereqs.md) | 10 min | ⭐ | Environment | Copilot CLI, Python venv, GitHub auth |
-| **1** | [AI-Powered Security Review](./docs/1-agent-security-review.md) | 20 min | ⭐⭐ | SAST | Autonomous vulnerability scanning, OWASP detection |
-| **2** | [Supply Chain Security](./docs/2-mcp-supply-chain.md) | 20 min | ⭐⭐ | Dependencies | MCP integration, CVE matching, SBOM generation |
-| **3** | [Secret Detection & Agents](./docs/3-secret-scanner-agent.md) | 25 min | ⭐⭐⭐ | Agent Chaining | Multi-agent orchestration, pre-commit hooks |
-| **4** | [Enterprise Security Policies](./docs/4-sdlc-policy-agents.md) | 25 min | ⭐⭐⭐⭐ | Automation | GitHub Actions, policy enforcement, enterprise workflows |
+| **1** | [AI-Powered Security Review](./docs/1-agent-security-review.md) | 20 min | ⭐⭐ | SAST | Copilot CLI analysis, agent internals, regex patterns |
+| **2** | [Supply Chain Security](./docs/2-mcp-supply-chain.md) | 20 min | ⭐⭐ | Dependencies | CVE detection, agent modification, SBOM generation |
+| **3** | [Secret Detection & Agents](./docs/3-secret-scanner-agent.md) | 15 min | ⭐⭐ | Secrets | Entropy analysis, pattern matching, credential detection |
+| **4** | [Enterprise Security Policies](./docs/4-sdlc-policy-agents.md) | 20 min | ⭐⭐⭐ | Automation | Agent orchestration, GitHub Actions, policy enforcement |
+| **5** | [Build Your First Agent](./docs/5-build-custom-agent.md) | 30 min | ⭐⭐⭐⭐⭐ | **Agent Development** | **Create custom agents, agent patterns, composition** |
 
-**Total Workshop Duration**: ~120 minutes
+**Total Workshop Duration**: ~120 minutes (or ~150 with Exercise 5)
 
 ---
 
@@ -121,10 +122,11 @@ security/
 ├── README.md                          ← You are here
 ├── docs/                              ← All workshop exercises
 │   ├── 0-prereqs.md                   ← Environment setup
-│   ├── 1-agent-security-review.md     ← SAST scanning
-│   ├── 2-mcp-supply-chain.md          ← Dependency scanning
-│   ├── 3-secret-scanner-agent.md      ← Agent chaining
-│   ├── 4-sdlc-policy-agents.md        ← Enterprise automation
+│   ├── 1-agent-security-review.md     ← Copilot CLI + agent patterns
+│   ├── 2-mcp-supply-chain.md          ← Dependency agents + modification
+│   ├── 3-secret-scanner-agent.md      ← Secret detection agents
+│   ├── 4-sdlc-policy-agents.md        ← Enterprise orchestration
+│   ├── 5-build-custom-agent.md        ← ⭐ Build your own agents
 │   ├── resources/                     ← Reference materials
 │   │   ├── copilot-cheatsheet.md
 │   │   └── agents-reference.md
@@ -134,30 +136,39 @@ security/
 ├── scripts/                           ← Utility scripts
 ├── .github/
 │   ├── workflows/                     ← GitHub Actions CI/CD
-│   └── agents/                        ← Custom security agents
-├── .gitignore                         ← Git ignore rules
-└── docker-compose.yml                 ← Local environment setup
+│   │   └── security-policy-check.yml  ← Multi-agent orchestration
+│   └── agents/                        ← Custom security agents (Python)
+│       ├── baseline-checker.py        ← SAST scanning
+│       ├── dependency-scout.py        ← CVE detection
+│       ├── secret-detector.py         ← Credential leaks
+│       ├── issue-reporter.py          ← Issue creation
+│       ├── remediation-proposer.py    ← Fix PR generation
+│       └── compliance-enforcer.py     ← Policy validation
+├── .gitignore
+└── docker-compose.yml
 ```
 
 ---
 
 ## 🎓 Learning Path
 
-### Beginner Path (60 min)
+### Beginner Path (60 min) - Learn to Use Agents
 1. ✅ [Exercise 0: Prerequisites](./docs/0-prereqs.md) (10 min)
 2. ✅ [Exercise 1: Security Review](./docs/1-agent-security-review.md) (20 min)
 3. ✅ [Exercise 2: Supply Chain](./docs/2-mcp-supply-chain.md) (20 min)
 4. 📖 Review [Resources & References](./docs/resources/)
 
-### Intermediate Path (100 min)
+### Intermediate Path (100 min) - Understand & Modify Agents
 1. ✅ All Beginner path exercises
-2. ✅ [Exercise 3: Secret Detection](./docs/3-secret-scanner-agent.md) (25 min)
-3. 📖 Study [Agent Architecture](./docs/resources/agents-reference.md)
+2. ✅ [Exercise 3: Secret Detection](./docs/3-secret-scanner-agent.md) (15 min)
+3. ✅ [Exercise 4: Enterprise Policies](./docs/4-sdlc-policy-agents.md) (20 min)
+4. 📖 Study [Agent Architecture](./docs/resources/agents-reference.md)
 
-### Advanced Path (Full 120 min)
+### Advanced Path (150 min) - Build Your Own Agents ⭐
 1. ✅ All Intermediate exercises
-2. ✅ [Exercise 4: Enterprise Policies](./docs/4-sdlc-policy-agents.md) (25 min)
-3. 🔧 Extend agents for your own repositories
+2. ✅ [Exercise 5: Build Custom Agent](./docs/5-build-custom-agent.md) (30 min)
+3. 🔧 Create specialized agents for your own repositories
+4. 🚀 Integrate into your team's CI/CD pipelines
 
 ---
 
@@ -204,29 +215,47 @@ security/
 - 🏗️ [Agent Architecture Patterns](./docs/resources/agents-reference.md)
 - 🔒 [OWASP Top 10 Reference](https://owasp.org/Top10/)
 
-### Troubleshooting
-- 🆘 **[Exercise 0: Troubleshooting Guide](./docs/0-prereqs.md#--troubleshooting)**
-- 💬 **GitHub Discussions**: Open an [issue](https://github.com/Hemavathi15sg/security/issues) if you get stuck
+---
+
+## 💡 What You'll Build: Custom Security Agents
+
+This workshop teaches you to **create practical security agents** that:
+
+### Agent Pattern (Proven & Working)
+```python
+# Input: Code/files to scan
+# ↓
+# Detection: Regex patterns, entropy analysis, database lookups
+# ↓
+# Output: JSON findings structured for CI/CD
+# ↓
+# Exit Code: 0 (pass) or 1 (fail) for automation decisions
+# ↓
+# Integration: GitHub Actions orchestration
+```
+
+### Real Agents You'll Build/Modify
+1. **baseline-checker.py** - Finds SQL injection, XSS, weak crypto (using regex patterns)
+2. **secret-detector.py** - Detects hardcoded credentials (entropy + pattern matching)
+3. **dependency-scout.py** - Identifies vulnerable packages (database lookups)
+4. **Your custom agent** - Exercise 5: Build your own security detector
+
+### Agent Composition (Chaining)
+```
+Agent 1: Detect    →  findings.json
+         ↓
+Agent 2: Report    →  issue.json  
+         ↓
+Agent 3: Remediate →  pr.json
+         ↓
+GitHub Actions: Orchestrate & Enforce
+```
+
+**This is enterprise security automation that ACTUALLY WORKS** — no vapourware, no theoretical frameworks.
 
 ---
 
-## 💡 Key Concepts
-
-### What Are GitHub Copilot Agents?
-
-Copilot Agents are **AI-powered autonomous workers** that:
-- ✅ Run scheduled or triggered analyses
-- ✅ Execute complex multi-step tasks
-- ✅ Integrate external tools via MCP
-- ✅ Chain together to solve larger problems
-- ✅ Report findings to GitHub Issues
-
-### Why Agent Chaining?
-
-**Single Agent**: Finds vulnerabilities  
-**Chained Agents**: Find → Report → Remediate → Enforce
-
-This workshop demonstrates the **power of composable AI**.
+## 📖 Resources & Documentation
 
 ---
 

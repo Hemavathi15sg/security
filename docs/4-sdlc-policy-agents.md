@@ -68,7 +68,113 @@ jobs:
 
 ---
 
-### Step 2: Test the Workflow
+## 🛠️ Agent Orchestration Pattern
+
+### How Agents Chain Together (Real Architecture)
+
+```
+GitHub Workflow (CI/CD)
+    ↓
+1. Run baseline-checker.py
+    ├─ Scans code
+    ├─ Outputs: findings.json
+    └─ Exit code: 0 (pass) or 1 (fail)
+    
+    ↓ (Workflow reads exit code)
+    
+2. Workflow Decision Logic
+    ├─ if exit_code == 1:
+    │   ├─ Run issue-reporter.py
+    │   ├─ Pass: findings.json to reporter
+    │   └─ Reporter creates issue
+    │
+    └─ if severity == CRITICAL:
+        └─ Set PR status: BLOCKED
+    
+    ↓
+3. Post Results
+    ├─ Comment on PR with summary
+    └─ Link to created issue
+```
+
+### JSON Data Flow
+
+```bash
+# Agent 1 outputs findings.json
+{
+  "vulnerabilities": [
+    {
+      "file": "app.py",
+      "line": 47,
+      "type": "SQL_INJECTION",
+      "severity": "CRITICAL"
+    }
+  ],
+  "summary": {"critical": 1, "high": 0}
+}
+
+# Workflow reads findings.json and decides:
+if grep -c "CRITICAL" findings.json > 0
+    exit 1  # Block PR
+
+# Agent 2 (issue-reporter) read findings.json and creates issue:
+gh issue create --title "[SECURITY] CRITICAL SQL Injection" \
+  --body "$(cat findings.json)"
+```
+
+---
+
+## 🆙 Hands-On: Enhance the Workflow
+
+### Step 1: Review Current Policy
+
+```bash
+cat .github/workflows/security-policy-check.yml
+```
+
+Current policy:
+- CRITICAL = Block PR immediately  
+- HIGH = Warn but allow merge (for now)
+- MEDIUM/LOW = Log only
+
+### Step 2: Modify Policy
+
+Edit the workflow to block HIGH severity too:
+
+```yaml
+# Find this section:
+run: |
+  CRITICAL=$(grep -c '"severity": "CRITICAL"' findings.json)
+  if [ $CRITICAL -gt 0 ]; then
+    exit 1
+  fi
+
+# Change to:
+run: |
+  CRITICAL=$(grep -c '"severity": "CRITICAL"' findings.json)
+  HIGH=$(grep -c '"severity": "HIGH"' findings.json)
+  if [ $CRITICAL -gt 0 ] || [ $HIGH -gt 0 ]; then
+    exit 1  # Now blocks both CRITICAL and HIGH
+  fi
+```
+
+### Step 3: Test New Policy
+
+Create PR that triggers HIGH severity:
+
+```bash
+git checkout -b test/high-severity-issue
+
+# Add high severity vulnerability (use your imagination!)
+echo 'TODO: add XSS vulnerability'
+
+git commit -m "test: high severity"
+git push origin test/high-severity-issue
+```
+
+Observe: PR now blocks on HIGH too!
+
+---
 
 Create a test PR with security issue:
 
@@ -197,10 +303,20 @@ Workflow (comment) → Post summary on PR
 
 ---
 
-**⏱️ Time**: 20 min | **Exercises**: 5/5 ✓
+**⏱️ Time**: 20 min | **Exercises**: 4/5 ✓
 
-🎉 **Workshop Complete!** You've demonstrated:
-- Copilot CLI for interactive analysis (Ex 1)
-- Python agents for automated scanning (Ex 2-3)
-- GitHub Actions orchestration (Ex 4)
-- Real security automation patterns (all)
+🎉 **Enterprise Automation Complete!** You've demonstrated enterprise-scale security automation.
+
+---
+
+## 🚀 Next: Build Your Own Agent (Bonus)
+
+**Ready to level up?** In **[Exercise 5: Build Your First Security Agent](./5-build-custom-agent.md)**, you'll:
+- Create a custom security agent from scratch  
+- Detect a specific vulnerability pattern 
+- Integrate your agent into GitHub Actions
+- Learn agent composition and chaining
+
+**This is where the real power of the workshop shines** → You can now build agents for YOUR specific security needs.
+
+**Ready?** → **[Exercise 5: Build Custom Agent →](./5-build-custom-agent.md)**

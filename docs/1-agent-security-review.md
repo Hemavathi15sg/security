@@ -529,23 +529,105 @@ copilot
 
 ---
 
-## 📚 Resources
+## 📚 Agent Deep Dive: Understanding baseline-checker.py
 
-### Current Tools (2026)
-- [GitHub Copilot CLI Repository](https://github.com/github/copilot-cli) (latest v0.0.414+)
-- [Copilot CLI Official Documentation](https://docs.github.com/copilot/concepts/agents/about-copilot-cli)
-- [Copilot CLI GitHub Discussions](https://github.com/github/copilot-cli/discussions)
+This exercise uses a **custom Python security agent**. Let's examine how it works:
 
-### Security References
-- [OWASP Top 10 2023](https://owasp.org/Top10/)
-- [OWASP SQL Injection](https://owasp.org/www-community/attacks/SQL_Injection)
-- [OWASP XSS Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
-- [CWE Top 25](https://cwe.mitre.org/top25/)
+### Agent Structure
 
-### Within This Workshop
-- [Reference Materials](./resources/reference.md)
-- [Copilot Cheatsheet](./resources/copilot-cheatsheet.md)  
-- [Security Workshop Skill Guide](#file:SKILL.md)
+```bash
+# View the agent source code
+cat .github/agents/baseline-checker.py
+```
+
+**Key Components:**
+1. **SecurityPattern class** - Defines detection regex patterns
+2. **BaselineChecker class** - Scans files and reports violations
+3. **Regex patterns** - Real security vulnerability signatures
+4. **JSON output** - Machine-readable findings
+
+### Detection Patterns (How It Works)
+
+```python
+PATTERNS = {
+    'SQL_INJECTION': [
+        r'f["\']SELECT.*WHERE.*{',      # F-string SQL injection
+        r'query.*format\(',               # Format-based SQL (app.py:47)
+        r'\.execute\(.*\+.*\)',          # String concatenation (vulnerable)
+    ],
+    'XSS_VULNERABLE': [
+        r'innerHTML\s*=',                 # Unsafe DOM manipulation
+        r'\.html\(',                      # Jinja2 without escape filter
+        r'eval\(',                        # Code evaluation (dangerous)
+    ],
+    'HARDCODED_SECRETS': [
+        r'(API_KEY|PASSWORD|TOKEN|SECRET)\s*=\s*["\']',
+        r'(JWT_SECRET|PRIVATE_KEY)\s*=',  # Found in app.py:12
+    ],
+}
+```
+
+**How it detects vulnerabilities:** Uses regex patterns to find suspicious code patterns that indicate security issues.
+
+---
+
+## 🛠️ Hands-On: Modify Detection Patterns
+
+### Step 1: Enhance the Agent
+
+Edit the agent to add a new detection pattern:
+
+```bash
+# Open agent in your editor
+code .github/agents/baseline-checker.py
+
+# Or view what we're modifying
+head -40 .github/agents/baseline-checker.py
+```
+
+### Step 2: Add Weak Password Hashing Detection
+
+Find the `PATTERNS` dict and add MD5 detection:
+
+```python
+'WEAK_CRYPTO': [
+    r'md5\(',              # ← Already here
+    r'sha1\(',             # ← Already here  
+    r'def.*hash.*md5',     # ← NEW: Add this pattern
+    r'password.*sha1',     # ← NEW: Add this pattern
+],
+```
+
+**Why:** These patterns catch common weak hashing mistakes.
+
+### Step 3: Test Your Modified Agent
+
+```bash
+# Run the modified agent
+python .github/agents/baseline-checker.py
+
+# Verify it detects the added patterns
+python .github/agents/baseline-checker.py | grep WEAK_CRYPTO
+```
+
+**Result:** Agent now catches more weak cryptography patterns!
+
+---
+
+### Step 4: Copy Agent Output for Issue Creation
+
+The agent outputs JSON that you'll use in Step 6:
+
+```bash
+# Capture agent findings
+python .github/agents/baseline-checker.py > findings.json
+
+# Use findings in Copilot to generate issue
+copilot << EOF
+Create a GitHub issue from these findings:
+$(cat findings.json)
+EOF
+```
 
 ---
 
