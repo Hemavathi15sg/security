@@ -43,7 +43,7 @@ npx @github/copilot
 
 **You'll see this interactive shell:**
 
-![Copilot CLI Interface](./images/copilot-cli-interface.png)
+![Copilot CLI Interface](./images/copilotversion.png)
 
 **Available commands:**
 - Type your prompt and press Enter
