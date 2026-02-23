@@ -43,20 +43,7 @@ npx @github/copilot
 
 **You'll see this interactive shell:**
 
-```
-┌──────────────────────────────────────────────────────┐
-│  ⬜ ⬜                                                  │
-│  ⬜ ⬜   GitHub Copilot v0.0.414                      │
-│         Describe a task to get started.              │
-│                                                      │
-│         Tip: /help Show help for interactive         │
-│         commands                                     │
-│         Copilot uses AI, so always check for         │
-│         mistakes.                                    │
-│                                                      │
-│         >                                            │
-└──────────────────────────────────────────────────────┘
-```
+![Copilot CLI Interface](./images/copilot-cli-interface.png)
 
 **Available commands:**
 - Type your prompt and press Enter
