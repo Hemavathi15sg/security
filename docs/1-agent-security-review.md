@@ -9,10 +9,11 @@
 
 By the end of this exercise, you will:
 
-✅ Use Copilot CLI (`gh copilot explain` and `gh copilot suggest`) for vulnerability discovery  
-✅ Identify OWASP Top 10 vulnerabilities in real code  
-✅ Understand how AI agents analyze code for security issues  
-✅ Document findings in GitHub issues  
+✅ Launch Copilot CLI interactive agent for code analysis  
+✅ Use conversational prompts to discover OWASP Top 10 vulnerabilities  
+✅ Identify SQL injection, XSS, hardcoded secrets, and weak dependencies  
+✅ Understand how AI agents reason about security issues  
+✅ Document findings and generate GitHub issues from agent output  
 
 ---
 
@@ -38,350 +39,513 @@ You'll analyze the SecureTrails application using Copilot CLI to discover:
 
 ## 📋 Step-by-Step Instructions
 
-### Step 1: Analyze Flask Backend for Vulnerabilities
+### Step 1: Launch Copilot CLI & Analyze Flask Backend
 
-**Objective**: Scan the main Flask application for security flaws.
+**Objective**: Use the interactive Copilot CLI to scan the Flask application for security vulnerabilities.
 
 Navigate to the SecureTrails repository:
 ```bash
 cd securetrails-vulnerable
 ```
 
-Use Copilot to analyze the Flask backend:
+Launch the Copilot CLI interactive session:
 ```bash
-gh copilot explain app.py
+copilot
 ```
 
-**When prompted for how Copilot can help, provide this specific prompt:**
-
+This opens an **interactive agent session** where you can have a conversation with Copilot. You'll see:
 ```
-Analyze this Flask application for security vulnerabilities. Identify:
-1. SQL injection risks in database queries
-2. Authentication and authorization flaws
-3. Hardcoded credentials or secrets
-4. Session management issues
-5. CORS and security header misconfigurations
-Provide specific line numbers and remediation advice.
+Welcome to GitHub Copilot CLI
+Type your prompt and press Enter to start. Type /help for commands.
 ```
 
-**Expected Analysis Output:**
-The agent should identify:
-- Line ~47: SQL query with unsanitized user input (SQL Injection)
-- Line ~12: Hardcoded JWT secret
-- Line ~156: Weak session handling
-- Line ~200: MD5 password hashing (insecure)
-- Line ~5: CORS `*` allowing all origins
+#### Slash Commands Available:
+- `/login` - Authenticate with GitHub
+- `/model` - Select Claude Sonnet 4.5, Claude Sonnet 4, or GPT-5 (currently Sonnet 4.5)
+- `/autopilot` or `Shift+Tab` - Toggle Autopilot mode (agent completes tasks autonomously)
+- `/experimental` - Enable experimental features
+- `/help` - Show all commands
+- `/exit` - Exit the session
+
+#### Analyze Flask Backend:
+
+In the Copilot CLI prompt, paste this security analysis request:
+
+```
+Analyze the SecureTrails Flask application for OWASP Top 10 vulnerabilities.
+Review app.py and identify:
+1. SQL injection in database queries (line numbers where user input touches DB)
+2. Hardcoded secrets/credentials (API keys, JWT secrets, passwords)
+3. Weak authentication (session handling, password hashing)
+4. CORS misconfigurations allowing inappropriate origins
+5. XSS entry points (unescaped template rendering)
+Provide file paths, exact line numbers, severity level, and remediation for each.
+```
+
+**Copilot's Response:**
+The interactive agent will analyze the code and provide findings like:
+```
+FLASK APPLICATION SECURITY ANALYSIS
+====================================
+
+CRITICAL FINDINGS:
+1. SQL Injection (app.py:47)
+   - Line: database.execute(f"SELECT * FROM trails WHERE id={request.args.get('id')}")
+   - Issue: User input directly interpolated into SQL query
+   - Fix: Use parameterized queries
+
+2. Hardcoded JWT Secret (app.py:12)
+   - Line: JWT_SECRET = "super-secret-key-12345"
+   - Issue: Secret exposed in source code
+   - Fix: Move to environment variable
+
+[... more findings ...]
+```
 
 **Your Task:**
-- [ ] Read the Copilot analysis carefully
-- [ ] Note the file paths and line numbers
-- [ ] Understand the security risk for each finding
+- [ ] Type your security analysis prompt in Copilot CLI
+- [ ] Review the agent's findings carefully
+- [ ] Note file paths and line numbers
+- [ ] Document the severity of each issue
 
 ---
 
-### Step 2: Review HTML Templates for XSS Vulnerabilities
+### Step 2: Continue Analysis - XSS Vulnerabilities in Templates
 
-**Objective**: Identify Cross-Site Scripting (XSS) entry points in templates.
+**Objective**: Use Copilot CLI to identify Cross-Site Scripting (XSS) vulnerabilities in templates.
 
-Use Copilot to suggest security improvements:
-```bash
-gh copilot suggest "Analyze templates/trails.html and templates/login.html for XSS vulnerabilities. Check if user input is properly escaped in HTML rendering and in JavaScript context. List specific lines where HTML is rendered without escaping."
+In the **same Copilot CLI session**, continue the conversation:
+
+```
+Now analyze templates/trails.html and templates/login.html for XSS vulnerabilities.
+Check for:
+1. HTML rendered without escaping (unsafe Jinja2 usage)
+2. Direct innerHTML manipulation in JavaScript
+3. Event handler injection points (onclick, onerror attributes)
+4. DOM-based XSS from user-controlled data
+List specific lines where templates render user input unsafely.
 ```
 
-**When Copilot responds, review its findings for:**
-- HTML injection points (lines where templates render user data)
-- DOM manipulation without sanitization
-- Event handler injection possibilities
+**What to Look For:**
+- `{{ user_input }}` without `| escape` filter
+- `{% autoescape false %}` disabling escaping
+- Direct string concatenation in template loops
 
-**Expected Findings:**
-- Line ~89 (trails.html): Trail comments rendered without escaping
-- Line ~124 (trails.html): Direct innerHTML usage
-- Line ~45 (login.html): Username field not validated on client
+**Copilot's Response Example:**
+```
+XSS VULNERABILITIES IN TEMPLATES
+==================================
+
+HIGH SEVERITY:
+1. Unescaped Comment Rendering (templates/trails.html:89)
+   - Line: <p>{{ trail.comments }}</p>
+   - Issue: User comments rendered without HTML escaping
+   - Attack: <img src=x onerror="alert('XSS')">
+   - Fix: Use {{ trail.comments | escape }} or default autoescape
+
+2. Direct innerHTML Usage (static/js/app.js:42)
+   - document.getElementById('comments').innerHTML = userInput;
+   - Issue: Directly assigns user data to DOM
+   
+[... more findings ...]
+```
 
 **Your Task:**
-- [ ] Identify ≥2 XSS vulnerabilities
-- [ ] Note the specific vulnerability type (stored vs. reflected)
-- [ ] Understand the attack vector
+- [ ] Review Copilot's XSS findings
+- [ ] Identify ≥2 XSS attack vectors
+- [ ] Note which are stored vs. reflected XSS
 
 ---
 
-### Step 3: Check for Hardcoded Secrets & Credentials
+### Step 3: Identify Hardcoded Secrets & Credentials
 
-**Objective**: Detect exposed sensitive information.
+**Objective**: Detect exposed sensitive information in the codebase.
 
-Examine the .env.example and app.py files:
-```bash
-gh copilot explain .env.example
+Continuing in your Copilot CLI session, ask the agent:
+
+```
+Search the SecureTrails codebase for hardcoded secrets, API keys, and credentials.
+Check app.py, .env.example, and configuration files for:
+1. Database passwords or connection strings with credentials
+2. JWT signs or API keys not parameterized
+3. AWS credentials, OAuth tokens, or encryption keys
+4. Any sensitive strings that should be environment variables instead
+List file paths, line numbers, and the exposed secret type.
 ```
 
-**Prompt for Copilot:**
+**Copilot's Response Example:**
 ```
-This file contains environment variable examples for SecureTrails. Identify any hardcoded secrets, API keys, credentials, or sensitive information that should NEVER be in version control. Check for: database passwords, API keys, JWT secrets, encryption keys, OAuth tokens. Explain the security risk of each exposure.
-```
+HARDCODED SECRETS FOUND
+=======================
 
-Also check app.py for secrets:
-```bash
-gh copilot suggest "Search app.py for hardcoded API keys, database passwords, encryption keys, JWT secrets, or any sensitive strings that should be environment variables instead of code. List line numbers and severity."
-```
+CRITICAL:
+1. JWT Secret in app.py (line 12)
+   Secret: "super-secret-key-12345"
+   Risk: Exposes session signing key
 
-**Expected Findings:**
-- `.env.example` line ~3: Database password example
-- `.env.example` line ~8: AWS API key format exposed
-- `app.py` line ~12: JWT_SECRET hardcoded
-- `app.py` line ~18: Database connection string with credentials
+2. Database Password in .env.example (line 3)
+   DB_PASSWORD = "password123"
+   Risk: Credentials leaked to anyone with repo access
+
+3. AWS API Key in app.py (line 18)
+   REGIONS = "us-east-1" 
+   AWS_KEY_ID = "AKIA..."
+   
+MEDIUM:
+4. Debug mode credentials in config.py
+
+[... more secrets ...]
+```
 
 **Your Task:**
 - [ ] Identify ≥3 exposed credentials
 - [ ] Understand the risk of each exposure
-- [ ] Note which should be moved to `.env`
+- [ ] Document which should move to environment variables
+- [ ] Note the scope of exposure (local dev only? production?)
 
 ---
 
 ### Step 4: Analyze JavaScript for Client-Side Vulnerabilities
 
-**Objective**: Check frontend code for injection and unsafe operations.
+**Objective**: Check frontend code for DOM-based attacks and unsafe operations.
 
-Analyze client-side code:
-```bash
-gh copilot explain static/js/app.js
+Continue in Copilot CLI:
+
+```
+Review static/js/app.js for JavaScript security vulnerabilities including:
+1. DOM-based XSS (innerHTML, eval, unsafe DOM manipulation)
+2. Missing input validation before API calls
+3. CSRF token not included in state-changing requests
+4. Sensitive data exposed in browser console
+5. Unsafe eval() or Function() constructors
+6. Direct URL construction without validation
+Provide line numbers and the specific vulnerability.
 ```
 
-**Prompt:**
+**Copilot's Response Example:**
 ```
-Review this JavaScript code for security vulnerabilities including:
-1. DOM-based XSS (innerHTML, eval, unsafe DOM methods)
-2. SQL injection in API calls
-3. Lack of input validation
-4. Insecure API endpoints
-5. Missing HTTPS enforcement
-Identify specific lines and suggest fixes.
-```
+JAVASCRIPT VULNERABILITIES
+===========================
 
-**Expected Findings:**
-- Line ~42: `innerHTML` usage without sanitization
-- Line ~67: `eval()` used on user data
-- Line ~89: Direct API call without CSRF token
-- Line ~105: Sensitive data in browser console (debug logs)
+HIGH:
+1. Unsafe innerHTML Assignment (app.js:42)
+   document.getElementById('comments').innerHTML = userComments;
+   Issue: Directly assigns user data, XSS opportunity
+   Fix: Use .textContent or sanitize with DOMPurify
+
+2. eval() on User Data (app.js:67)
+   eval(userCode);
+   Issue: Allows arbitrary code execution
+   Fix: Never use eval()
+
+3. Missing CSRF Token (app.js:89)
+   fetch('/api/update-trail', {...})
+   Issue: No anti-CSRF token in POST request
+   Fix: Include CSRF token from DOM
+
+MEDIUM:
+4. Debug Data in Console (app.js:105)
+   console.log('User token:', authToken);
+   Issue: Sensitive data logged to browser console
+   
+[... more findings ...]
+```
 
 **Your Task:**
 - [ ] Identify ≥2 DOM-based vulnerabilities
 - [ ] Note the specific JavaScript methods creating risk
-- [ ] Document attack scenarios
+- [ ] Document realistic attack scenarios
 
 ---
 
 ### Step 5: Check Dependencies for Known Vulnerabilities
 
-**Objective**: Identify outdated packages with security issues.
+**Objective**: Identify outdated packages with known CVEs.
 
-Analyze requirements file:
-```bash
-gh copilot suggest "I have a Python requirements.txt file. Analyze each package version and check if any have known security vulnerabilities (CVEs). Flag packages that are outdated or have critical security issues. Recommend updated versions."
+In Copilot CLI, ask the agent to analyze dependencies:
+
+```
+I have a Python requirements.txt file with package dependencies.
+Analyze each package version and identify:
+1. Any known security vulnerabilities (CVEs)
+2. Packages that are significantly outdated
+3. Packages with critical/high severity security issues
+4. Recommended safe upgrade versions for each vulnerable package
+Provide the package name, current version, CVE details, and suggested upgrade.
 ```
 
-Then show Copilot the file:
-```bash
-gh copilot explain requirements.txt
+Show Copilot the requirements.txt content, or ask it to analyze:
+```
+requirements.txt contains:
+Flask==1.1.0
+requests==2.24.0
+SQLAlchemy==1.3.0
+Jinja2==2.11.0
+Werkzeug==0.16.0
+
+For each, report known vulnerabilities.
 ```
 
-**Expected Findings:**
-- Flask 1.1.0 — Multiple CVEs (upgrade to 2.3+)
-- requests 2.24.0 — HTTP request smuggling (upgrade to 2.28+)
-- SQLAlchemy 1.3.0 — SQL injection vectors (upgrade to 2.0+)
+**Copilot's Response Example:**
+```
+DEPENDENCY VULNERABILITY ANALYSIS
+===================================
+
+CRITICAL:
+1. Flask 1.1.0 → Multiple CVEs (upgrade to 2.3+)
+   - CVE-2021-29453: Bypass of gettext lookups
+   - CVE-2021-21330: SSRF vulnerability
+   Action: Upgrade to Flask==2.3.0 or later
+
+2. Werkzeug 0.16.0 → Path traversal (upgrade to 2.3+)
+   - CVE-2021-29454: Path traversal in safe_join()
+
+HIGH:
+3. requests 2.24.0 → HTTP smuggling (upgrade to 2.28+)
+   - CVE-2021-33503: Incorrect handling of newlines
+   Action: Upgrade to requests==2.28.0 or later
+
+4. SQLAlchemy 1.3.0 → SQL injection vectors
+   Action: Upgrade to SQLAlchemy==2.0.0
+
+5. Jinja2 2.11.0 → Template injection risks
+   Action: Upgrade to Jinja2==3.1.0
+
+[... more packages ...]
+```
 
 **Your Task:**
 - [ ] Note all dependencies with vulnerabilities
-- [ ] Record severity levels
-- [ ] List recommended upgrade versions
+- [ ] Record the severity level (CRITICAL/HIGH/MEDIUM)
+- [ ] List the recommended upgrade versions
+- [ ] Understand the security implication of each CVE
 
 ---
 
-### Step 6: Create GitHub Issue from Findings (Prompt-Based)
+### Step 6: Create GitHub Issue with Comprehensive Findings
 
-**Objective**: Consolidate your agent findings and create a GitHub issue using a simple prompt.
+**Objective**: Consolidate all findings into a GitHub issue.
 
-The approach: You run the agent, show Copilot your findings, and let it generate the issue creation command. **No scripts, no templates—just conversation.**
+You now have comprehensive security analysis from Copilot CLI. **Still in the Copilot CLI session**, ask the agent to help generate the issue:
 
----
+```
+Based on all the vulnerabilities we just identified (SQL injection, XSS, hardcoded secrets, weak dependencies), 
+generate the exact GitHub CLI command I should run to create an issue titled "[SECURITY] Exercise 1: SecureTrails Audit" 
+with labels "security,exercise".
 
-#### The Workflow: Run → Show → Generate → Run
+The issue body should include:
+1. CRITICAL findings (SQL injection, hardcoded secrets)
+2. HIGH findings (XSS, weak auth, vulnerable dependencies)
+3. MEDIUM findings (debug logs, etc.)
+4. For each finding: file path, line numbers, severity, description, and recommended fix
+5. A summary assessment: 'Ready for production?' (Yes/No/Needs Review)
+6. Next steps for remediation
 
-```bash
-# Step 1: Run the agent and capture findings
-python .github/agents/baseline-checker.py > findings.json
-
-# Step 2: Display what you found
-cat findings.json
-
-# Step 3: Use Copilot to generate the issue command
-gh copilot suggest "I ran a security vulnerability scan on the SecureTrails application. 
-Here are the actual findings I got:
-
-$(cat findings.json)
-
-Based on these findings, generate a GitHub issue creation command that:
-1. Creates an issue titled '[SECURITY] Exercise 1: [count] vulnerabilities found'
-2. Uses labels 'security,exercise'  
-3. Groups vulnerabilities by severity (CRITICAL, HIGH, MEDIUM, LOW)
-4. Includes file name and line number for each finding
-5. Provides a brief assessment ('Needs immediate attention' or 'Low risk')
-
-Output the complete gh issue create command I should run."
-
-# Step 4: Copy the generated command and run it
-# (Copilot will output the exact command—just copy and paste)
+Output the complete gh issue create command with the full body text that I can copy and run.
 ```
 
-**Real example:**
+**Copilot CLI Will Output:**
+```
+gh issue create \
+  --title "[SECURITY] Exercise 1: SecureTrails Audit" \
+  --label "security,exercise" \
+  --body "## Security Audit Results
 
-```bash
-$ python .github/agents/baseline-checker.py > findings.json
+### CRITICAL (2 issues)
+- SQL Injection in app.py:47
+  File: app.py, Line: 47
+  Description: Unsanitized user input in SQL query
+  Fix: Use parameterized queries with SQLAlchemy ORM
 
-$ cat findings.json
-{
-  "vulnerabilities": [
-    {"type": "SQL_INJECTION", "file": "app.py", "line": 47, "severity": "CRITICAL", ...},
-    {"type": "XSS_VULNERABILITY", "file": "templates/trails.html", "line": 89, "severity": "HIGH", ...}
-  ],
-  "summary": {"total": 7, "critical": 2, "high": 3, "medium": 2}
-}
+- Hardcoded JWT Secret in app.py:12
+  File: app.py, Line: 12
+  Description: JWT signing key exposed in source code
+  Fix: Move to environment variable
 
-$ gh copilot suggest "I found these vulnerabilities: $(cat findings.json) ..."
-
-# Copilot responds:
-# 
-# gh issue create \
-#   --title "[SECURITY] Exercise 1: 7 vulnerabilities found" \
-#   --label "security,exercise" \
-#   --body "## Security Findings
-# 
-# **CRITICAL (2 issues):**
-# 1. SQL Injection - app.py:47
-# 2. Hardcoded Secret - app.py:12
-# 
-# **HIGH (3 issues):**
-# ... [rest of findings] ...
-# 
-# Assessment: Needs immediate attention"
-
-$ # Just copy and run it:
-$ gh issue create --title "[SECURITY] Exercise 1: 7 vulnerabilities found" ...
+### HIGH (3 issues)
+- XSS in templates/trails.html:89
+[... etc ...]"
 ```
 
----
+**Your Task:**
+1. [ ] Copy the generated command from Copilot CLI
+2. [ ] Exit Copilot CLI (`/exit` or Ctrl+C)
+3. [ ] Run the copied issue creation command:
+   ```bash
+   gh issue create --title "[SECURITY]..." [rest of command]
+   ```
+4. [ ] Verify the issue was created in your GitHub repository
 
-#### ⚡ Why This Approach Works
+**Alternative: If Copilot Needs Formatting Direction**
 
-✅ **Simple** - No coding required, just prompts  
-✅ **Realistic** - Teams actually work like this  
-✅ **Your data** - Uses YOUR actual findings, not templates  
-✅ **Flexible** - Works for any number of vulnerabilities  
-✅ **Collaborative** - Shows how humans + AI work together  
-✅ **Honest** - Not pretending all findings will be identical  
-
----
-
-#### 💡 Pro Tips
-
-- If findings.json is very large, pass a summary instead:
-```bash
-gh copilot suggest "Summary of findings: $(python .github/agents/baseline-checker.py | grep -E 'severity|type' | head -20)..."
+If the output is too long or needs reformatting, you can ask within Copilot CLI:
+```
+Format that as a markdown table instead of a list for the CRITICAL findings section.
 ```
 
-- You can adjust the prompt to format the issue however you want:
-```bash
-gh copilot suggest "... output the command with a table of findings instead of a list"
+Or ask for a more concise version:
 ```
-
-- Copilot might suggest tweaks—just iterate:
-```bash
-gh copilot suggest "That looks good but add a 'security-review' label too"
+Create a shorter version suitable for an executive summary - just the count of issues by severity and top 3 actionable fixes.
 ```
 
 ---
 
 ## ✅ Acceptance Criteria
 
-- [ ] Ran `gh copilot explain app.py` and reviewed analysis
-- [ ] Ran `gh copilot suggest` for templates and JavaScript
-- [ ] Identified ≥5 security vulnerabilities
-- [ ] Found ≥3 exposed credentials
-- [ ] Noted ≥3 vulnerable dependencies
-- [ ] Created GitHub issue with comprehensive findings
-- [ ] Documented each vulnerability with:
-  - [ ] File and line number
-  - [ ] Severity level
-  - [ ] Description and impact
-  - [ ] Recommended fix
+- [ ] Launched `copilot` interactive CLI successfully
+- [ ] Analyzed Flask app (app.py) for SQL injection, hardcoded secrets, weak auth
+- [ ] Identified XSS vulnerabilities in templates (escaping issues)
+- [ ] Found ≥3 exposed credentials in code/config
+- [ ] Analyzed JavaScript for DOM-based vulnerabilities
+- [ ] Checked dependencies (requirements.txt) against known CVEs
+- [ ] Asked Copilot to generate GitHub issue creation command
+- [ ] Created GitHub issue with findings grouped by severity
+- [ ] Issue includes file paths, line numbers, severity, and fixes
+- [ ] Assessment documented: "Ready for production?" (Yes/No/Needs Review)
 
 ---
 
 ## 🖼️ Expected Output
 
-Copilot analysis output should look similar to:
+### Copilot CLI Interactive Session
+
+When you launch `copilot`, the analysis conversation looks like:
 
 ```
-Flask Application Security Analysis
+$ copilot
+Welcome to GitHub Copilot CLI
+Type your prompt and press Enter to start. Type /help for commands.
+
+> Analyze the SecureTrails Flask application for OWASP Top 10 vulnerabilities...
+[Copilot thinking...]
+
+Flask Application Security Analysis  
 ====================================
 
 CRITICAL FINDINGS (2):
-1. SQL Injection (app.py:47) - User input in SQL query
-2. Hardcoded JWT Secret (app.py:12) - Credential exposure
+1. SQL Injection (app.py:47)
+   - database.execute(f"SELECT * FROM trails WHERE id={request.args.get('id')}")
+   - User input directly interpolated into SQL query
+   - Fix: Use parameterized queries (SQLAlchemy ORM, prepared statements)
+
+2. Hardcoded JWT Secret (app.py:12)
+   - JWT_SECRET = "super-secret-key-12345"
+   - Signing key exposed in source code
+   - Fix: Move to environment variable, rotate key
 
 HIGH FINDINGS (4):
 3. XSS in Templates (templates/trails.html:89)
+   - {{ trail.comments }} rendered without escaping
+   - Fix: Use {{ trail.comments | escape }} or default autoescape
+
 4. Weak Password Hashing (app.py:200)
+   - Using MD5 instead of bcrypt
+   - Fix: Import bcrypt, use bcrypt.hashpw()
+
 5. CORS Misconfiguration (app.py:5)
+   - @cross_origin() with default '*' origin
+   - Fix: Specify specific allowed origins
+
 6. Exposed .env Example (credentials listed)
+   - File: .env.example contains real looking credentials
+   - Fix: Use placeholder values only
 
 MEDIUM FINDINGS (1):
 7. Vulnerable Dependencies (multiple packages outdated)
 
-REMEDIATION OVERVIEW:
-- Use parameterized queries for SQL
-- Move secrets to environment variables
-- Apply output escaping in templates
-- Use bcrypt for passwords
-- Restrict CORS to specific origins
-- Update all packages to latest versions
+> Now generate a GitHub issue command...
+[Copilot generates gh issue create command]
 ```
+
+### What You'll See in Copilot CLI
+
+✅ Real-time analysis as Copilot reviews your code  
+✅ Line-by-line vulnerability details  
+✅ Severity ratings and remediation guidance  
+✅ Ability to ask follow-up questions  
+✅ Generated commands ready to copy-paste  
+
+### Modes Available While in Copilot CLI
+
+- **Normal Mode** (default): Copilot responds to your prompts
+- **Autopilot Mode** (`Shift+Tab` or `/autopilot`): Agent completes tasks autonomously without asking
+- **Model Selection** (`/model`): Choose Claude Sonnet 4.5, Sonnet 4, or GPT-5
 
 ---
 
 ## 🆘 Troubleshooting
 
-### Issue: "Copilot CLI not responding"
+### Issue: "copilot: command not found"
 ```bash
-# Restart authentication
-gh copilot auth
+# Install Copilot CLI if not already installed
+# macOS/Linux with Homebrew:
+brew install copilot-cli
+
+# Windows with WinGet:
+winget install GitHub.Copilot
+
+# Or with npm (all platforms):
+npm install -g @github/copilot
 ```
 
-### Issue: "File not found" in copilot explain
+### Issue: "Not authenticated" or login prompt appears
 ```bash
-# Make sure you're in the correct directory
-pwd
-ls -la app.py
+# In Copilot CLI, run login command
+/login
 
-# Use full paths if needed
-gh copilot explain ./securetrails-vulnerable/app.py
+# Or exit and use PAT authentication
+# Set GH_TOKEN or GITHUB_TOKEN environment variable
+export GH_TOKEN="your_fine_grained_pat_with_copilot_scope"
+copilot
 ```
 
-### Issue: "No output from copilot suggest"
+### Issue: "No response from agent"
 ```bash
-# Try with simpler prompt first
-gh copilot suggest "Find SQL injection in Flask"
+# Try simpler prompt first
+> Analyze app.py for SQL injection
+
+# If still stuck, try changing mode
+# Press Shift+Tab to cycle through modes
+# Or type: /model (to select a different AI model)
+```
+
+### Issue: "Output is too verbose or truncated"
+```bash
+# Ask in Copilot CLI for format adjustment
+> Can you provide that in a shorter format?
+> Show just the CRITICAL findings first
+> Make it a markdown table instead of a list
+```
+
+### Issue: "Generated command is incomplete or malformed"
+```bash
+# Ask Copilot to regenerate with different format request
+> That command got cut off. Can you regenerate it? 
+> Make sure to include the full --body text.
+
+# Or request it in a file instead
+> Write the full gh issue create command to a file called issue-command.sh
 ```
 
 ---
 
 ## 📚 Resources
 
+### Current Tools (2026)
+- [GitHub Copilot CLI Repository](https://github.com/github/copilot-cli) (latest v0.0.414+)
+- [Copilot CLI Official Documentation](https://docs.github.com/copilot/concepts/agents/about-copilot-cli)
+- [Copilot CLI GitHub Discussions](https://github.com/github/copilot-cli/discussions)
+
+### Security References
 - [OWASP Top 10 2023](https://owasp.org/Top10/)
 - [OWASP SQL Injection](https://owasp.org/www-community/attacks/SQL_Injection)
 - [OWASP XSS Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
-- [GitHub Copilot CLI Docs](https://docs.github.com/en/copilot/github-copilot-cli/using-github-copilot-cli)
+- [CWE Top 25](https://cwe.mitre.org/top25/)
+
+### Within This Workshop
 - [Reference Materials](./resources/reference.md)
-- [Copilot Cheatsheet](./resources/copilot-cheatsheet.md)
+- [Copilot Cheatsheet](./resources/copilot-cheatsheet.md)  
+- [Security Workshop Skill Guide](#file:SKILL.md)
 
 ---
 
