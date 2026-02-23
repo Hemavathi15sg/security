@@ -125,30 +125,97 @@ Created agent at .github\agents\sql-injection-remediation-guide.agent.md
 
 ---
 
-## 📝 Step 4: Test Your Agent
+## 📝 Step 4: Select Your Custom Agent
 
-While still in Copilot CLI, reference your new agent:
+After agent is created, Copilot shows the agent selection menu:
 
-```bash
-Ask Copilot: "Help me use the sql-injection-fix-guide agent to understand the vulnerability"
+![Select Custom Agent](./images/agent%20selection.png)
+
+**You'll see:**
+```
+Selected custom agent: sql-injection-remediation-guide
+
+Select Agent:
+> 1. Default (deselect current agent)
+  2. sql-injection-remediation-guide (current)
+
+Manage Agents:
+  3. Create new agent...
+  4. Learn more about custom agents
 ```
 
-Copilot can:
-- Explain the agent
-- Provide details from the agent
-- Guide you through steps it defines
+Your agent is now **selected and active**.
 
 ---
 
-## 🔄 Step 5: Create More Agents (Repeat 3 times)
+## 💬 Step 5: Ask Questions to Your Custom Agent
 
-Follow the **exact same workflow**:
+With your agent selected, you can now ask security questions:
 
-1. Select: **1. Create new agent...**
-2. Enter: Name + Description + Instructions
-3. Confirm: Success message (6-41KB size)
-4. Select tools: **All tools**
-5. Confirm: Agent saved to `.github/agents/`
+![Question Prompt to Custom Agent](./images/questionforcustomagent.png)
+
+**Example questions:**
+
+```bash
+# Ask the agent about your specific problem:
+"How would we fix line 47 in app.py?"
+
+# Or:
+"What's the step-by-step process to patch this SQL injection?"
+
+# Or:
+"Show me the before/after code for this vulnerability"
+```
+
+**The agent responds** with guidance from your remediation instructions:
+- ✅ References your specific app (SecureTrails)
+- ✅ Points to exact line numbers (line 47)
+- ✅ Provides step-by-step fixes
+- ✅ Shows code examples
+- ✅ Includes testing strategy
+
+---
+
+## 🔑 Key Insight: Agent Reference in Terminal
+
+Notice at the bottom of the terminal:
+
+```
+@sql-injection-remediation-guide.agent.md • Remaining reqs.: 42%
+```
+
+This shows:
+- ✅ Active agent file path
+- ✅ Context window usage
+- ✅ You're using the agent for this session
+
+---
+
+## ✨ Step 6: Agent Provides Fixes & Guidance
+
+Your custom agent responds with tailored guidance:
+
+![Custom Agent Fixes Response](./images/custom%20agent.png)
+
+**The agent delivers:**
+- ✅ References your specific app (SecureTrails)
+- ✅ Points to exact line numbers and vulnerabilities
+- ✅ Provides step-by-step fixes
+- ✅ Shows before/after code examples
+- ✅ Includes testing strategy
+- ✅ Tailored to your team (senior devs, juniors)
+
+---
+
+## 🔄 Step 7: Create More Agents (Repeat for 3 Remaining)
+
+Follow the **exact same workflow** for the remaining vulnerabilities:
+
+1. **Create new agent** → Enter name, description, instructions
+2. **Select tools** → Choose "All tools"
+3. **Confirm** → Agent saved to `.github/agents/`
+4. **Select agent** → Choose from menu (optional - can switch agents)
+5. **Use agent** → Ask security questions
 
 ### Agent 2: Authentication & Authorization Fix
 
@@ -196,7 +263,36 @@ Content:
 
 ## ✅ Your Custom Agent Library
 
-After this exercise, your agents are available in Copilot CLI:
+---
+
+## ✅ Your Custom Agent Library
+
+---
+
+## 📋 Reference: Copilot CLI Commands
+
+When you're in the Copilot CLI interactive session (`npx @github/copilot -i`), you can use these slash commands:
+
+```
+Available Commands:
+/version     - Show Copilot CLI version
+/help        - Display help information
+/agents      - Manage custom agents (CREATE, LIST, EDIT, DELETE)
+/clear       - Clear conversation history
+/exit        - Exit the interactive session
+```
+
+**Most important for this exercise**: `/agents` - opens the agent management menu where you:
+- Create new agents
+- List existing agents
+- Edit agent instructions
+- Delete agents you no longer need
+
+---
+
+## ✨ After This Exercise
+
+Your agents are available in Copilot CLI:
 
 ```
 Copilot CLI /agents menu:
@@ -260,72 +356,10 @@ Copilot uses your agent knowledge to guide you through fixes.
 
 ---
 
-**⏱️ Time**: 20 min | **Exercises**: 3/5 ✓
+**⏱️ Time**: 20 min | **Exercises**: 3/6 ✓
 
 **Custom agents are now persistent in your Copilot CLI environment!**
 
-
-## Building Domain-Specific Vulnerability Fixes
-
-**Duration**: 20 minutes  
-**Type**: ⭐⭐⭐⭐ Agent creation  
-**Focus**: Use Copilot CLI to CREATE custom agents (.md guides) for fixing vulnerabilities
-
----
-
-## 🎯 Learning Objectives
-
-✅ Understand what a "custom agent" is (fix documentation)  
-✅ Use Copilot CLI to GENERATE fix guides  
-✅ Create `.md` agent files for SecureTrails vulnerabilities  
-✅ Document step-by-step remediation processes  
-✅ Build a library of custom agents for your domain  
-
----
-
-## 📖 What is a Custom Agent?
-
-**In this workshop, a "Custom Agent" is:**
-- A `.md` file that documents HOW to fix a specific vulnerability
-- Created using Copilot CLI prompts
-- Contains step-by-step remediation instructions
-- Stored in `.github/agents/` as reference guides
-- Used by developers to understand AND fix issues
-
-**NOT**:
-- Pre-built Python scripts (we don't use those)
-- Automated executables
-- Magic frameworks
-
-**Simply**: Intelligent documentation for fixing security issues.
-
----
-
-## 📋 The Vulnerability We Found
-
-From Exercise 1 (GitHub GHAS), we detected:
-
-```
-🔴 CRITICAL: SQL Injection in database query layer
-File: apps/securetrails-vulnerable/app.py
-Line: ~47
-Issue: User input directly concatenated into SQL query
-```
-
-Example vulnerable code:
-```python
-user_input = request.args.get('location')
-query = f"SELECT * FROM trails WHERE location = '{user_input}'"
-database.execute(query)  # VULNERABLE!
-```
-
-**Now**: Use Copilot CLI to CREATE a fix guide (custom agent).
-
----
-
-## 🚀 Step 1: Launch Copilot CLI
-
-Use the npx command with your prompt:
 
 ```bash
 npx @github/copilot -i "Create a comprehensive remediation guide for fixing SQL Injection"
