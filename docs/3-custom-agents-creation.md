@@ -144,7 +144,17 @@ Manage Agents:
   4. Learn more about custom agents
 ```
 
-Your agent is now **selected and active**.
+Your agent is now **selected and active**. The agent responds with tailored guidance:
+
+![Custom Agent Fixes Response](./images/custom%20agent.png)
+
+**The agent delivers:**
+- ✅ References your specific app (SecureTrails)
+- ✅ Points to exact line numbers and vulnerabilities
+- ✅ Provides step-by-step fixes
+- ✅ Shows before/after code examples
+- ✅ Includes testing strategy
+- ✅ Tailored to your team (senior devs, juniors)
 
 ---
 
@@ -191,23 +201,7 @@ This shows:
 
 ---
 
-## ✨ Step 6: Agent Provides Fixes & Guidance
-
-Your custom agent responds with tailored guidance:
-
-![Custom Agent Fixes Response](./images/custom%20agent.png)
-
-**The agent delivers:**
-- ✅ References your specific app (SecureTrails)
-- ✅ Points to exact line numbers and vulnerabilities
-- ✅ Provides step-by-step fixes
-- ✅ Shows before/after code examples
-- ✅ Includes testing strategy
-- ✅ Tailored to your team (senior devs, juniors)
-
----
-
-## 🔄 Step 7: Create More Agents (Repeat for 3 Remaining)
+## 🔄 Step 6: Create More Agents (Repeat for 3 Remaining)
 
 Follow the **exact same workflow** for the remaining vulnerabilities:
 
