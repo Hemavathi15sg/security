@@ -31,30 +31,34 @@ Unlike many security workshops, this is:
 ## 🏗️ Architecture at a Glance
 
 ```
-TIER 1: GITHUB NATIVE
+TIER 1: GITHUB NATIVE (Built-in GitHub Services - NOT .py files)
 ├─ CodeQL (SQL injection, XSS detection)
 ├─ Secret Scanning (hardcoded credentials)
 └─ Dependabot (vulnerable packages)
-   → Automatic. Free. Always running.
+   → Automatic. Free. Always running. Runs on GitHub servers.
 
-TIER 2: INTERACTIVE ANALYSIS
+TIER 2: INTERACTIVE ANALYSIS (Your Team - Access via CLI)
 ├─ Copilot CLI (conversational security review)
 └─ Security team uses to prioritize & recommend fixes
-   → Human expertise. Requires Copilot license.
+   → Human expertise via CLI. Requires Copilot license.
 
-TIER 3: CUSTOM EXTENSION
-├─ Python security detection scripts
+TIER 3: CUSTOM EXTENSION (Your .py Files - What YOU Build)
+├─ Python security detection scripts (.github/agents/*.py)
 ├─ Domain-specific vulnerability patterns
 └─ Runs in CI/CD pipeline
-   → Your specialized rules. Automated.
+   → Your specialized rules. You write and maintain these files.
 
-TIER 4: ORCHESTRATION
-├─ GitHub Actions (chains everything)
+TIER 4: ORCHESTRATION (GitHub Actions Workflow)
+├─ GitHub Actions (chains everything together)
+├─ Calls GHAS (native)
+├─ Calls your .py detection scripts
 ├─ Creates issues from findings
 ├─ Blocks PRs on critical severity
 └─ Reports to security dashboard
    → Integration layer. Glues everything.
 ```
+
+**IMPORTANT**: GitHub GHAS is NOT .py files. Custom detection tools ARE .py files.
 
 ---
 
@@ -208,25 +212,35 @@ By the end of the 2-hour workshop, you should:
 
 ## 🎓 Key Concepts
 
-### GitHub GHAS
-**What**: Automated vulnerability detection  
+### GitHub GHAS (Built-in GitHub Services - NOT .py files)
+**What**: Automated vulnerability detection built into GitHub  
+**Included**: CodeQL, Secret Scanning, Dependabot  
+**Where**: Runs on GitHub servers, not in your .github/agents/  
 **Cost**: Included in GitHub Pro ($21/mo)  
-**When to use**: Start here—catches 95% of common vulns
+**Files**: NONE - these are GitHub services, not code you write  
+**When to use**: Start here—catches 95% of common vulns automatically
 
-### Copilot CLI
+### Copilot CLI (Interactive Tool - Access via Terminal)
 **What**: Conversational AI for security analysis  
+**How to use**: `copilot` command in terminal  
 **Cost**: Copilot license ($10-20/mo per user)  
-**When to use**: For prioritization and decision-making
+**Files**: NONE - it's a service you access, not code you write  
+**When to use**: For prioritization and architectural decisions
 
-### Custom Tools
-**What**: Python security scripts you write  
+### Custom Detection Tools (Your Python Scripts - ARE .py files)
+**What**: Python security scripts YOU create and maintain  
+**Where**: `.github/agents/` (your repository)  
+**Files**: YES - you write these as .py files  
 **Cost**: Developer time  
-**When to use**: When GitHub GHAS can't detect it
+**Examples**: `access-control-detector.py`, `secret-detector.py`  
+**When to use**: When GitHub GHAS can't detect YOUR domain risks
 
-### GitHub Actions
-**What**: CI/CD automation platform  
+### GitHub Actions (Integration Layer - Orchestration)
+**What**: CI/CD workflow that chains everything  
+**Where**: `.github/workflows/` (your repository)  
+**Files**: YES - you write `.yml` files  
 **Cost**: Free (2,000 min/month included)  
-**When to use**: Chain tools together
+**When to use**: Chain GHAS + Copilot + custom tools together
 
 ---
 

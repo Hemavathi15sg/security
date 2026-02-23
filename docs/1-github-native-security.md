@@ -33,15 +33,26 @@ This exercise shows what GitHub **NATIVELY** provides.
 
 ## 🏛️ What is GitHub Advanced Security (GHAS)?
 
-GHAS includes THREE built-in security features:
+GHAS includes THREE built-in security **SERVICES** (NOT .py files):
 
-| Feature | What It Does | How It Works |
-|---------|--------------|-------------|
-| **CodeQL** | Finds code vulnerabilities (SQL injection, XSS, etc.) | Semantic code analysis (powered by GitHub) |
-| **Secret Scanning** | Detects hardcoded API keys, passwords, tokens | Pattern matching for known secret formats |
-| **Dependabot** | Identifies vulnerable packages | Scans dependencies against CVE database |
+| Feature | What It Does | Type | Where It Runs |
+|---------|--------------|------|----------------|
+| **CodeQL** | Finds code vulnerabilities (SQL injection, XSS, etc.) | GitHub Native Service | GitHub servers |
+| **Secret Scanning** | Detects hardcoded API keys, passwords, tokens | GitHub Native Service | GitHub servers |
+| **Dependabot** | Identifies vulnerable packages | GitHub Native Service | GitHub servers |
 
-**Key Point**: These are BUILT INTO GitHub. No custom setup needed. GitHub does the heavy lifting.
+**CRITICAL**: These are **BUILT INTO GitHub**. They are NOT .py files in your repository. GitHub does the heavy lifting on their servers.
+
+**In TIER 3** (Exercise 3), you will write CUSTOM .py files to extend these services. Those are different.
+
+---
+
+## ⚠️ Don't Confuse These:
+
+| What | Type | Files? | Location |
+|------|------|--------|----------|
+| GitHub GHAS (CodeQL, Secrets, Dependabot) | ✅ Built-in GitHub service | ❌ None - it's a service | GitHub servers |
+| Custom Detection Tools (Exercise 3) | ❌ Code YOU write | ✅ .py files | `.github/agents/` in your repo |
 
 ---
 

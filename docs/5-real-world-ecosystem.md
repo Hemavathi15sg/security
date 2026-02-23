@@ -549,28 +549,83 @@ You've learned the **complete GitHub security ecosystem**:
 
 ---
 
+## ⚠️ Critical Distinction Before You Deploy
+
+**THREE DIFFERENT TOOLS - Don't Confuse Them:**
+
+### 1️⃣ GitHub GHAS (GitHub Native Services - NOT .py files)
+- CodeQL, Secret Scanning, Dependabot
+- Built INTO GitHub (runs on GitHub servers)
+- **No .py files in your repo**
+- Enabled in Settings → Code Security → Enable
+- Automatic, no code to write
+- Free (included in GitHub Pro)
+- **Examples**: Detects SQL injection, XSS, leaked credentials
+
+### 2️⃣ Custom Detection Tools (Your Python Scripts - ARE .py files)
+- Python scripts YOU write and maintain
+- **Stored in `.github/agents/` directory**
+- Run in GitHub Actions workflow
+- You define the patterns
+- Must manually maintain
+- Developer time required
+- **Examples**: Access control patterns, business logic validation, config issues
+
+### 3️⃣ Copilot CLI (Interactive Tool - Access via Terminal)
+- Conversational AI for analysis
+- **Not a .py file - external service**
+- Use for decision-making, not automation
+- Requires Copilot license
+- Manual interaction (not in CI/CD)
+- **Examples**: Prioritizing fixes, architectural decisions
+
+### 4️⃣ GitHub Actions (Orchestration Layer - .yml files)
+- Workflow file in `.github/workflows/`
+- **Not a .py file - workflow definition**
+- Chains 1+2+3 together
+- You define the steps but run other tools
+- Free to use
+
+---
+
+## When Deploying to Your Org
+
+✅ **DO**:
+- Enable GitHub GHAS first (built-in, free)
+- Write custom .py scripts for domain risks
+- Use GitHub Actions to chain them
+- Use Copilot CLI for security team decisions
+
+❌ **DON'T**:
+- Confuse GitHub GHAS with your custom .py scripts
+- Think custom .py scripts replace GHAS (they extend it)
+- Write .py files for things GHAS already detects
+- Use Copilot CLI in automated workflows (it's for humans)
+
+---
+
 ## Next Steps for Professional Adoption
 
 ### Week 1
-- Deploy to development branch
+- Deploy GitHub GHAS (built-in services - no work)
+- Review GHAS findings in Security tab
 - Test with your team
-- Collect feedback
 
 ### Week 2
-- Enable on all PR branches
-- Monitor false positive rate
-- Adjust custom detectors
+- Write custom .py detectors for YOUR risks (like Exercise 3)
+- Test custom detectors locally
+- Create GitHub Actions workflow
 
 ### Week 3
-- Train all developers
-- Track metrics
-- Plan next security initiative
+- Enable Actions workflow on all PRs
+- Monitor GHAS + custom detector results
+- Adjust custom .py patterns based on false positives
 
 ### Month 2+
-- Consider SIEM integration
+- Train developers on distinguishing GHAS vs custom tools
+- Expand custom .py detectors as needed
 - Add compliance reporting
-- Expand custom detectors
-- Enterprise artifact scanning
+- SIEM integration
 
 ---
 

@@ -19,19 +19,22 @@
 
 ## 📋 Scenario
 
-**We've built three independent tools:**
-- Exercise 1: GitHub GHAS (native automated scanning)
-- Exercise 2: Copilot CLI (interactive conversational analysis)
-- Exercise 3: Custom detectors (domain-specific patterns)
+**We've built different types of tools:**
 
-**Now: Chain them together**
+| Exercise | Type | Files? | Where It Runs |
+|----------|------|--------|----------------|
+| Exercise 1 | GitHub GHAS (native services) | ❌ None - built into GitHub | GitHub servers |
+| Exercise 2 | Copilot CLI (interactive tool) | ❌ None - external service | Your terminal |
+| Exercise 3 | Custom detection (.py tools YOU wrote) | ✅ YES - in `.github/agents/` | GitHub Actions runner |
+
+**Now: Chain Exercise 3's .py scripts with GHAS into a workflow**
 
 ```
 Push Code
     ↓
-Run GHAS (auto - detects SQLi, XSS, weak crypto)
+Run GHAS (GitHub native services - CodeQL, Secrets, Dependabot)
     ↓
-Run Custom Detector (detects insecure ==, debug flags)
+Run Custom Detector (YOUR .py file from Exercise 3)
     ↓
 Invoke Copilot CLI (analyzes + prioritizes findings)
     ↓
@@ -244,9 +247,19 @@ jobs:
 The workflow has 3 key decision points:
 
 ### Stage 1: Detection Phase
-- GitHub GHAS runs automatically (background)
-- Custom detectors run and parse output
-- Findings stored as JSON
+
+**GitHub GHAS** (Built-in GitHub services - automatic, no .py files):
+- Runs automatically in background
+- CodeQL scanning for vulnerabilities
+- Secret Scanning for credentials
+- Dependabot for vulnerable packages
+- GitHub handles all the scanning
+
+**Custom Detectors** (Your .py scripts - you created in Exercise 3):
+- `.github/agents/access-control-detector.py`
+- Runs YOUR Python code
+- Detects YOUR custom patterns
+- Outputs JSON for next steps
 
 ### Stage 2: Analysis Phase  
 - Copilot CLI invoked with findings (optional in CI)

@@ -3,36 +3,52 @@
 
 **Duration**: 20 minutes  
 **Type**: ⭐⭐⭐⭐ Practical construction  
-**Focus**: Create specialized security detection scripts
+**Focus**: Create .py files for specialized security detection
+
+---
+
+## ⚠️ Important Distinction
+
+**GitHub GHAS** (Exercise 1):
+- CodeQL, Secret Scanning, Dependabot
+- Built INTO GitHub (GitHub servers run them)
+- NOT .py files in your repo
+- No code to write
+
+**Custom Detection Tools** (THIS Exercise):
+- Python scripts YOU write and maintain
+- .py files in `.github/agents/` directory
+- Run in your GitHub Actions workflow
+- Code you implement and customize
 
 ---
 
 ## 🎯 Learning Objectives
 
-✅ Understand when custom tools are needed  
-✅ Build a Python security detection script from scratch  
-✅ Define custom detection patterns for your domain  
+✅ Understand when custom .py tools are needed  
+✅ BUILD a Python security detection script from scratch  
+✅ Define custom detection patterns for YOUR domain  
 ✅ Integrate output with GitHub (JSON format)  
-✅ See how this fits into the ecosystem (not a magic "agent framework")
+✅ See how THIS your custom code fits into the ecosystem
 
 ---
 
 ## 📋 Scenario
 
-**GitHub GHAS covers standard vulnerabilities:**
+**GitHub GHAS covers standard vulnerabilities (built-in services):**
 - SQL injection ✅
 - XSS ✅  
 - Weak cryptography ✅
 - Known vulnerable packages ✅
 
-**GitHub GHAS MISSES domain-specific risks:**
+**GitHub GHAS MISSES domain-specific risks (these need YOUR .py code):**
 ❌ Business logic flaws (booking system allowing double-booking)  
 ❌ Configuration issues (debug mode left on in production)  
 ❌ API contract violations  
 ❌ Custom authentication bypasses  
 
 **This Exercise:**  
-Build a detector for SecureTrails' specific risk: **insecure comparison operators in access control**.
+YOU WILL WRITE a .py detector for SecureTrails' specific risk: **insecure comparison operators in access control**.
 
 ```python
 # Vulnerable pattern to detect
