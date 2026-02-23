@@ -59,22 +59,31 @@ Available slash commands while in session:
 
 ## 💬 Step 2: First Prompt - Overview Analysis
 
-In the Copilot CLI prompt, paste this:
+**In the Copilot CLI prompt, paste this realistic request:**
 
 ```
-You are a security expert reviewing SecureTrails, a Flask web application 
-for trail booking. Based on the code structure, provide:
+I'm reviewing a Flask web application called SecureTrails - a trail booking 
+platform. I need a quick security assessment. Can you help me identify:
 
-1. Top 3 CRITICAL security risks in this type of application
-2. Explain the business impact of each
-3. What architectural patterns would prevent these?
+1. The top 3 CRITICAL vulnerabilities that would most likely affect a 
+   booking app like this
+2. What's the real-world business impact if an attacker exploited each?
+3. What architectural patterns or practices would prevent these specific issues?
 
-Code paths to consider:
-- securetrails-workshop/app.py (backend logic)
-- securetrails-workshop/templates/ (user-facing views)
-- securetrails-workshop/static/js/ (client-side logic)
-- securetrails-workshop/requirements.txt (dependencies)
+The app has:
+- Backend logic in app.py (Flask routes, database queries)
+- HTML templates with user-generated content
+- JavaScript on the frontend
+- Python dependencies in requirements.txt
+
+What are the biggest red flags I should look for?
 ```
+
+**Why this prompt works:**
+- ✅ Specific context (Flask, booking app, file locations)
+- ✅ Clear enumerated outcomes (top 3, impact, prevention)
+- ✅ Conversational (feels like asking a colleague)
+- ✅ Open-ended (invites detailed responses)
 
 **Copilot responds** with contextual overview:
 
@@ -109,16 +118,27 @@ These three risks compound each other...
 
 ## 🔍 Step 3: Deep Dive - Specific Vulnerability
 
-Now ask follow-up questions:
+Now ask a follow-up question about one specific finding:
 
 ```
-Explain the SQL injection in app.py in detail. 
-Show me:
-1. How an attacker would exploit it
-2. Example malicious SQL they'd inject
-3. Step-by-step what happens on the server
-4. Why parameterized queries prevent this
+Let's focus on SQL injection vulnerability that GitHub GHAS probably flagged 
+in the app.py file around the trails search function.
+
+Can you walk me through:
+1. How would an attacker actually exploit this specific vulnerability?
+2. Show me an example of the SQL injection payload they'd use
+3. What exactly happens on the server when that payload is sent?
+4. Why does using a parameterized query (or prepared statement) stop this attack?
+5. Are there any common mistakes developers make when fixing this?
+
+I want to understand the attack chain, not just the fix.
 ```
+
+**Why this works:**
+- ✅ References specific finding (SQL injection in trails search)
+- ✅ Asks for concrete examples (shows exploitation)
+- ✅ Builds to understanding (why fix works, not just what fix is)
+- ✅ Includes common pitfalls (makes fix more robust)
 
 **Copilot explains the attack chain:**
 
@@ -168,19 +188,29 @@ Even if attacker passes `1' OR '1'='1`, it's treated as the literal string, not 
 
 ---
 
-## 🏗️ Step 4: Architecture Discussion
+## 🏗️ Step 4: Architecture - Choosing the Right Fix
 
 Ask about architectural improvements:
 
 ```
-What's the best architectural pattern to prevent SQL injection 
-at scale? Should SecureTrails use:
-a) Raw SQL with parameterized queries
-b) ORM like SQLAlchemy
-c) Stored procedures
-d) Multiple of the above?
+We're going to fix SQL injection in the SecureTrails Flask app. I'm wondering 
+what approach makes the most sense for a startup that might grow to 10+ developers 
+working on the same codebase.
 
-What are pros and cons?
+Should we:
+1. Add parameterized queries throughout the existing raw SQL code?
+2. Migrate to SQLAlchemy ORM gradually?
+3. Use both (ORM for new code, parameterized SQL for legacy)?
+
+And for each approach, I need to know:
+- Estimated refactor time for ~50 existing SQL queries
+- Risk of introducing bugs during refactor
+- How to test that SQL injection is actually fixed
+- What training developers need
+- Which approach makes it HARDEST to write insecure code in the future?
+
+I think the last point matters most - we want to prevent developers from 
+accidentally writing vulnerable SQL next year.
 ```
 
 **Copilot provides architectural guidance:**
@@ -226,19 +256,33 @@ This pattern scales across Rails, Django, Node.js...
 
 ---
 
-## 🎯 Step 5: Trade-off Analysis
+## 🎯 Step 5: Risk-Driven Implementation Planning
 
 Ask practical questions about implementation:
 
 ```
-What's the implementation priority order?
-1. Fix SQL injection (highest risk)
-2. Implement proper authentication (highest impact)
-3. Fix XSS in comments (widespread)
-4. Update vulnerable dependencies (complexity)
+Let's talk real constraints. Our CTO gave us 1 week to fix critical vulnerabilities 
+approved by GitHub GHAS. We need to be strategic.
 
-If we have 1 week, where should we focus first?
-What should we do in parallel?
+Here are the three critical findings:
+1. SQL Injection in app.py (20+ locations)
+2. Broken Authentication in user permissions (10+ locations)
+3. XSS in trail comments section (5 locations)
+
+PLUS we have 8 vulnerable dependencies flagged by Dependabot 
+(Flask 1.1.2→2.3.0, Jinja2 2.11→3.1.0, etc)
+
+Realistically, if we have:
+- 2 senior developers
+- 1 junior developer
+- Need to maintain customer support
+
+What's the ACTUAL sequence? What can we do in parallel?
+What MUST we do before the others?
+What's negotiable with stakeholders?
+
+And for the dependencies - can we upgrade those safely without breaking 
+the SQL injection fixes we're doing? Or should we upgrade first?
 ```
 
 **Copilot gives practical guidance:**
@@ -277,17 +321,36 @@ What should we do in parallel?
 
 ---
 
-## 📝 Step 6: Create Implementation Plan
+## 📝 Step 6: From Plan to Action
 
-Ask Copilot to generate an implementation guide:
+Ask Copilot to create the actual fix guide:
 
 ```
-Create a step-by-step implementation checklist for 
-fixing SQL injection in SecureTrails.
-Include:
-- Files to modify
-- Before/after code snippets
-- Testing approach
+Alright, let's be concrete. Give me a step-by-step checklist we can actually execute 
+for SQL Injection fixes in SecureTrails.
+
+I need:
+
+1. **The Files** - Which app.py functions need fixing? (I suspect trails_search, 
+   user_bookings, admin_reports. Are there others?)
+
+2. **Before/After Code** - Show me the before (vulnerable) and after (parameterized) 
+   for 2 representative examples from different function types
+
+3. **The Test Cases** - What specific SQL injection payloads should our QA team try 
+   to verify each fix works?
+   Examples:
+   - `1' OR '1'='1`
+   - `1; DROP TABLE trails; --`
+   - What other payloads should we test with?
+
+4. **Dependency Notes** - We're using MySQLdb 1.2.5. Does it support parameterized 
+   queries natively, or do we need to switch to SQLAlchemy/PyMySQL?
+
+5. **Risk Mitigation** - What could go wrong? What do we need to back up before we start?
+
+Give me this as a numbered checklist I can screenshot and put on the sprint board.
+```
 - Deployment strategy
 ```
 

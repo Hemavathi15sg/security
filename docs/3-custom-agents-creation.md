@@ -77,23 +77,28 @@ Type your prompt and press Enter for analysis
 Ask Copilot CLI to generate a fix guide:
 
 ```
-Create a comprehensive remediation guide for fixing SQL Injection vulnerability 
-in a Python Flask application.
+I'm a lead dev at SecureTrails (Flask/Python app) and we just got flagged by GitHub GHAS 
+for SQL injection in our database layer. 
 
-The vulnerability is in apps/securetrails-vulnerable/app.py at line 47:
-- User input from request.args.get('location') is directly concatenated into SQL query
-- Currently: query = f"SELECT * FROM trails WHERE location = '{user_input}'"
-- This allows SQL injection attacks
+Here's what we found:
+- File: app.py, Line 47
+- The problem: User input from request.args is directly concatenated into SQL queries
+- Example: `query = f"SELECT * FROM trails WHERE location = '{user_input}'"`
+- This breaks our authentication AND lets attackers dump the entire database
 
-For the fix guide include:
-1. Executive Summary (what's the risk?)
-2. Step-by-step remediation process
-3. Before/After code examples
-4. How to test the fix
-5. Common pitfalls to avoid
-6. Timeline for implementation
+I need to create a remediation guide for our team (2 seniors, 1 junior). 
 
-Format this as a clear, actionable guide that a developer can follow.
+Create a structured, implementable guide that covers:
+1. What's the risk? (make it real - what could attackers actually DO?)
+2. Root cause analysis (where in our code?)
+3. Step-by-step fix process (how exactly do we change the code?)
+4. Before/After code examples (show Python SQLAlchemy AND raw MySQLdb patterns)
+5. Testing strategy (how do we VERIFY it's fixed, including injection payloads to try?)
+6. Gotchas & common mistakes (what could go wrong during refactor?)
+7. Timeline (how long should this take?)
+
+Make it something we can literally hand to a developer and say 'go fix this' without 
+needing a security consultant holding their hand the whole time.
 ```
 
 **Copilot responds** with structured remediation guide:
@@ -214,34 +219,80 @@ This is your first **custom agent** - a domain-specific fix guide created by Cop
 
 ---
 
-## 🔄 Step 4: Create More Custom Agents
+## 🔄 Step 4: Create More Custom Agents - Domain-Specific Remediations
 
-Repeat for other vulnerabilities:
+Repeat for other vulnerabilities found by GHAS:
 
-### Agent 2: Authentication Bypass Fix
+### Agent 2: Authentication & Authorization Fix
+
 Ask Copilot CLI:
 ```
-Create a remediation guide for fixing Broken Authentication 
-in a Flask app where session validation is missing.
-Include architecture recommendations.
+Our SecureTrails Flask app has a broken authentication issue flagged by GitHub GHAS.
+The problem: We're not validating user permissions on data modifications.
+
+Specifically:
+- User A can modify User B's trail bookings by changing a URL parameter
+- Sessions exist but aren't checked on state-changing operations (PUT, DELETE, POST)
+- Example: DELETE /booking/123 should verify the logged-in user OWNS booking 123
+
+Create a fix guide that covers:
+1. Why this is a CRITICAL business risk (attackers can book/cancel other users' trips)
+2. Root cause (session handling vs permission validation)
+3. How to implement proper authorization checks in Flask decorators
+4. Before/After code showing vulnerable endpoint vs secure endpoint
+5. How to test permission boundaries (which operations should succeed/fail for different users)
+6. Common mistakes (hardcoding IDs, forgetting session checks, etc)
+
+Include realistic Python patterns we can use. Our team uses Flask-Login, so show that pattern.
+This should be implementable in 1-2 days for an experienced developer.
 ```
 
 Save as: `.github/agents/authentication-fix-guide.md`
 
-### Agent 3: XSS Prevention Agent
+### Agent 3: XSS Prevention Fix
+
 Ask Copilot CLI:
 ```
-Create a guide to fix Cross-Site Scripting (XSS) 
-in Jinja2 templates. Include template escaping patterns.
+GitHub GHAS flagged XSS vulnerabilities in our Jinja2 templates where user-submitted 
+trail comments and descriptions are rendered without HTML escaping.
+
+The risk: Attackers inject JavaScript that runs in OTHER users' browsers 
+(stealing cookies, redirecting to malware, etc)
+
+Create a remediation guide:
+1. How does XSS happen in Jinja2? (what's the specific template pattern we're using wrong?)
+2. Why is this dangerous for SecureTrails specifically? (we store user comments)
+3. How to fix templates - Jinja2 escaping patterns and when to use autoescape
+4. Before/After template examples
+5. Content Security Policy headers we should add to app.py
+6. Testing - how to verify XSS payloads are now neutralized (include test payloads)
+7. Performance implications of escaping (is there any?)
+
+We're already escaping in SOME places inconsistently, so explain when escaping is needed 
+vs when it's not. Show the safe defaults.
 ```
 
 Save as: `.github/agents/xss-fix-guide.md`
 
-### Agent 4: Dependency Update Agent
+### Agent 4: Dependency Security Fix
+
 Ask Copilot CLI:
 ```
-Create a guide for safely updating vulnerable Python packages.
-Include testing strategy and rollback plan.
+Our requirements.txt has flagged vulnerabilities in dependencies (Flask 1.1.2 → 2.3.0, 
+Jinja2 2.11 → 3.1.0, requests 2.28.0 → older).
+
+We need a process for safely upgrading without breaking the application.
+
+Create a guide:
+1. What are the risks of upgrading vs NOT upgrading dependencies?
+2. Breaking changes to watch for between Flask 1.x and 2.x
+3. Testing strategy (unit tests? integration tests? manual?)
+4. Rollback plan if something breaks
+5. Step-by-step upgrade process (in what order should we upgrade?)
+6. How to verify no regression after upgrade
+7. Documentation update checklist
+
+We have a 2-hour regression test window before the next deploy.
 ```
 
 Save as: `.github/agents/dependency-update-guide.md`
