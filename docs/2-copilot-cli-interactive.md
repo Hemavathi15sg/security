@@ -35,38 +35,44 @@ Copilot CLI = Human-like reasoning
 
 ## 🚀 Step 1: Launch Copilot CLI
 
-Open terminal and launch the interactive shell:
+Open terminal and run:
 
 ```bash
-copilot
+npx @github/copilot
 ```
 
-You'll see:
+**You'll see this interactive shell:**
 
 ```
-Welcome to GitHub Copilot CLI
-Type your prompt and press Enter for analysis
-/help for commands | /exit to quit
+┌──────────────────────────────────────────────────────┐
+│  ⬜ ⬜                                                  │
+│  ⬜ ⬜   GitHub Copilot v0.0.414                      │
+│         Describe a task to get started.              │
+│                                                      │
+│         Tip: /help Show help for interactive         │
+│         commands                                     │
+│         Copilot uses AI, so always check for         │
+│         mistakes.                                    │
+│                                                      │
+│         >                                            │
+└──────────────────────────────────────────────────────┘
 ```
 
-Available slash commands while in session:
-- `/login` - Authenticate with GitHub
-- `/model` - Select Claude Sonnet 4.5, Sonnet 4, or GPT-5
-- `/autopilot` - Toggle autonomous mode (agent runs tasks without asking)
-- `/exit` - Leave session
+**Available commands:**
+- Type your prompt and press Enter
+- `/help` - Show available commands
+- `/exit` - Close Copilot
 
 ---
 
 ## 💬 Step 2: First Prompt - Overview Analysis
 
-**In the Copilot CLI prompt, paste this realistic request:**
+Run this command with your initial security assessment request:
 
-```
-I'm reviewing a Flask web application called SecureTrails - a trail booking 
-platform. I need a quick security assessment. Can you help me identify:
+```bash
+npx @github/copilot -i "I'm reviewing a Flask web application called SecureTrails - a trail booking platform. I need a quick security assessment. Can you help me identify:
 
-1. The top 3 CRITICAL vulnerabilities that would most likely affect a 
-   booking app like this
+1. The top 3 CRITICAL vulnerabilities that would most likely affect a booking app like this
 2. What's the real-world business impact if an attacker exploited each?
 3. What architectural patterns or practices would prevent these specific issues?
 
@@ -76,7 +82,7 @@ The app has:
 - JavaScript on the frontend
 - Python dependencies in requirements.txt
 
-What are the biggest red flags I should look for?
+What are the biggest red flags I should look for?"
 ```
 
 **Why this prompt works:**
