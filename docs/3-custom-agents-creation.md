@@ -265,10 +265,6 @@ Content:
 
 ---
 
-## ✅ Your Custom Agent Library
-
----
-
 ## 📋 Reference: Copilot CLI Commands
 
 When you're in the Copilot CLI interactive session (`npx @github/copilot -i`), you can use these slash commands:
@@ -359,13 +355,6 @@ Copilot uses your agent knowledge to guide you through fixes.
 **⏱️ Time**: 20 min | **Exercises**: 3/6 ✓
 
 **Custom agents are now persistent in your Copilot CLI environment!**
-
-
-```bash
-npx @github/copilot -i "Create a comprehensive remediation guide for fixing SQL Injection"
-```
-
-This launches an interactive session where you can ask follow-up questions.
 
 ---
 
