@@ -105,36 +105,63 @@ These three risks compound each other...
 
 ## 🔍 Step 3: Create Issue & Try Fixing It
 
-Based on Copilot's analysis, take action by creating an issue and attempting a fix.
+Based on Copilot's analysis, use Copilot CLI to create a GitHub issue directly through GitHub's MCP.
 
-### Create the GitHub Issue
+### Create Issue Using Copilot CLI
 
-After Copilot identifies the SQL injection vulnerability, create an issue in GitHub:
+Ask Copilot to create the GitHub issue for you:
+
+```bash
+npx @github/copilot -i "I need you to create a GitHub issue in my repository (Hemavathi15sg/securetrails-workshop) for the SQL injection vulnerability we just discussed.
+
+Please create an issue with:
+- Title: 'fix(security): SQL Injection - Parameterize database queries'
+- Description: Include the vulnerability summary, the vulnerable code location, and the fix approach
+- Labels: security, critical, bug
+- Assignees: (optional - leave empty)
+
+Make the description clear enough that any developer can understand the fix needed."
+```
+
+**Copilot will:**
+1. ✅ Create the issue in your GitHub repository
+2. ✅ Format the title and description professionally
+3. ✅ Add appropriate labels (security, critical)
+4. ✅ Return the issue URL and number
+
+**Example Issue Created:**
 
 ```
-Title: fix(security): SQL Injection - Parameterize database queries in trails search
-
+Title: fix(security): SQL Injection - Parameterize database queries
+Issue #47
 Description:
-- Location: app.py, trails search endpoint
-- Vulnerability: User input directly concatenated into SQL queries
-- Example: query = f"SELECT * FROM trails WHERE id={user_id}"
-- Risk: Attackers can extract all database records or modify data
-- Fix: Use parameterized queries
+## Vulnerability
+Location: app.py, trails search endpoint (line 47)
+Type: SQL Injection
 
-**Before (Vulnerable):**
-query = f"SELECT * FROM trails WHERE id={user_id}"
+## Current Code (Vulnerable)
+User input directly concatenated into SQL queries:
+query = f"SELECT * FROM trails WHERE location = '{user_input}'"
 
-**After (Fixed):**
-query = "SELECT * FROM trails WHERE id=?"
-db.execute(query, (user_id,))
+## Risk
+- Attackers can extract all database records
+- Can modify or delete data
+- Possible privilege escalation
 
-Priority: CRITICAL
-Labels: security, sql-injection
+## Fix
+Use parameterized queries - pass user input as separate parameter, not in SQL string:
+query = "SELECT * FROM trails WHERE location = ?"
+db.execute(query, (user_input,))
+
+## Priority
+CRITICAL - Fix immediately
 ```
+
+---
 
 ### Try the Fix
 
-Follow Copilot's recommendation and implement the fix:
+Implement the before/after code fix in your local branch
 
 ```python
 # BEFORE (Vulnerable - App.py line 47)
