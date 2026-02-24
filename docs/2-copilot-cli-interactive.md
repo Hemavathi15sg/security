@@ -159,19 +159,26 @@ CRITICAL - Fix immediately
 
 ---
 
-### Try the Fix
+## 🔧 Step 3b: Option A - Quick Fix (Direct Prompt)
 
-Implement the before/after code fix in your local branch
+For **individual developers** or **rapid prototyping**, ask Copilot directly to generate the fix:
+
+```bash
+npx @github/copilot -i "Fix the SQL injection vulnerability in app.py line 47 (search_trails function).
+
+Current code:
+query = f\"SELECT * FROM trails WHERE location = '{user_input}'\"
+
+Please provide:
+1. The corrected function using parameterized queries
+2. What changed and why it's safer
+3. Any imports or dependencies needed"
+```
+
+**Copilot responds with:**
 
 ```python
-# BEFORE (Vulnerable - App.py line 47)
-def search_trails():
-    user_input = request.args.get('location')
-    query = f"SELECT * FROM trails WHERE location = '{user_input}'"
-    results = database.execute(query)
-    return jsonify(results)
-
-# AFTER (Fixed - Using parameterized query)
+# FIXED: search_trails() using parameterized query
 def search_trails():
     user_input = request.args.get('location')
     query = "SELECT * FROM trails WHERE location = ?"
@@ -179,32 +186,110 @@ def search_trails():
     return jsonify(results)
 ```
 
-**Key change:**
-- ❌ Bad: `f"SELECT * FROM trails WHERE location = '{user_input}'"`
-- ✅ Good: `"SELECT * FROM trails WHERE location = ?"` + `(user_input,)`
-
-The database driver treats the parameter as DATA, not SQL code, preventing injection.
+**When to use Option A:**
+- ✅ Solo developer learning/prototyping
+- ✅ Need quick proof-of-concept
+- ✅ Simple, standalone fixes
+- ❌ Not good for team accountability
 
 ---
 
-## 🎓 Why This Matters
+## 🤖 Step 3c: Option B - Delegation (Using `/delegate`)
 
-**Copilot CLI provides 3 things GitHub GHAS can't:**
+For **team workflows** and **professional projects**, delegate the fix to a coding agent:
 
-1. **Explanation**: Not just "SQL injection found" but *why* it matters
-2. **Context**: Multi-turn conversation about your app architecture
-3. **Guidance**: Step-by-step fix recommendations tailored to your codebase
+```bash
+npx @github/copilot -i "I created GitHub issue #47 for a critical SQL injection vulnerability in our SecureTrails app.
+
+Issue Details:
+- Location: app.py, search_trails function (line 47)
+- Problem: User input concatenated into SQL query
+- Required Fix: Use parameterized queries
+
+Please use /delegate to assign this to a coding agent that will:
+1. Read the full issue context from GitHub
+2. Generate the corrected code
+3. Create a pull request linked to issue #47
+4. Include test cases for SQL injection prevention"
+```
+
+**What happens with delegation:**
+
+1. ✅ Coding agent reads issue #47 from GitHub
+2. ✅ Agent generates fix with full context
+3. ✅ Agent creates PR with:
+   - Title: `fix(security): Parameterize SQL queries in search_trails #47`
+   - Description: Shows vulnerability, fix, and rationale
+   - Linked to issue #47
+4. ✅ You review PR before merging
+5. ✅ Full audit trail: Issue → PR → Review → Commit
+
+**Example PR created by agent:**
+
+```
+Title: fix(security): Parameterize SQL queries in search_trails #47
+
+## Changes
+- Modified search_trails() to use parameterized queries
+- Prevents SQL injection attack vectors
+
+## Before
+query = f"SELECT * FROM trails WHERE location = '{user_input}'"
+
+## After  
+query = "SELECT * FROM trails WHERE location = ?"
+results = database.execute(query, (user_input,))
+
+## Testing
+- Added test_sql_injection_prevention() test case
+- Verified with payloads: 1' OR '1'='1, 1; DROP TABLE; --
+```
+
+**When to use Option B:**
+- ✅ Team environments (2+ developers)
+- ✅ Need audit trail & accountability
+- ✅ Professional/enterprise settings
+- ✅ Complex fixes needing review
+- ✅ Compliance/security documentation
+
+---
+
+## 📊 Comparison: A vs B
+
+| Aspect | Option A (Direct Prompt) | Option B (Delegation) |
+|--------|-------------------------|----------------------|
+| **Speed** | Immediate | Slightly slower (creates PR) |
+| **Accountability** | ❌ None | ✅ Full audit trail |
+| **Code Review** | ❌ Manual | ✅ Automatic PR |
+| **Issue Linking** | ❌ Manual | ✅ Automatic |
+| **Team Coordination** | ❌ Unclear who's fixing | ✅ Clear assignment |
+| **Learning** | ✅ Good | ✅ Good + PR review |
+| **Best For** | Solo developers | Teams & enterprises |
+
+---
+
+## 🎯 SecureTrails Recommendation
+
+**Use Option B (Delegation)** for your team:
+
+1. GitHub GHAS finds vuln → Creates issue
+2. You ask Copilot to `/delegate`
+3. Coding agent creates PR
+4. Senior dev reviews + merges
+5. Custom agents document the pattern (Exercise 3)
+
+This creates a **repeatable, auditable security workflow** that scales.
 
 ---
 
 ## ✅ Acceptance Criteria
 
 - [ ] Launched Copilot CLI interactive session
-- [ ] Asked initial security assessment question
-- [ ] Had follow-up conversation about findings
-- [ ] Created GitHub issue from analysis
-- [ ] Attempted before/after code fix
-- [ ] Understood why parameterized queries prevent SQL injection
+- [ ] Created GitHub issue via MCP
+- [ ] Tried Option A (direct fix prompt) - understand the output
+- [ ] Tried Option B (delegation with /delegate) - understand the PR creation
+- [ ] Know when to use each approach
+- [ ] Understand why Option B is better for teams
 
 ---
 
