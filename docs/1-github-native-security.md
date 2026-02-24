@@ -48,7 +48,7 @@ GHAS includes THREE built-in security **SERVICES**:
 
 ### Step 1.1: Go to Repository Settings
 
-In your GitHub repository, click **Settings** tab:
+In your GitHub repository, click **Security** tab:
 
 ![Settings Tab Navigation](./images/1.png)
 
@@ -84,17 +84,12 @@ Once enabled, GitHub starts scanning automatically.
 
 ---
 
-## 🔍 Step 2: View Security Results
+## 🔍 Step 2: Enable Code Quality (Preview)
 
-### Step 2.1: Open Security Dashboard
-
-Click the **Security** tab in your repository header:
+### Step 2.1: Open Settings → Code quality (preview) is a new GitHub feature that provides code quality insights alongside security findings.
+**Enable Code Quality (Preview)** to get additional insights on code maintainability and potential bugs.
 
 ![Security Tab](./images/4.png)
-
-**You'll see:**
-- Security alerts overview
-- Links to Code scanning, Dependabot, Secret scanning
 
 ---
 
@@ -102,7 +97,7 @@ Click the **Security** tab in your repository header:
 
 Click **Code scanning** in the left menu:
 
-![Code Scanning Results](./images/5.png)
+
 
 **You'll see:**
 - List of vulnerabilities found by CodeQL
