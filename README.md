@@ -90,26 +90,6 @@ By the end of this 2-hour workshop, you will:
 
 ---
 
-## 🚀 Getting Started
-
-### Step 1: Complete Prerequisites
-```bash
-# Follow Exercise 0 to set up your environment
-open ./docs/0-prereqs.md
-```
-
-### Step 2: Enable Security Features
-```bash
-# Navigate to Exercise 1 to enable GHAS
-open ./docs/1-github-native-security.md
-```
-
-### Step 3: Analyze Vulnerabilities
-```bash
-# Use Copilot CLI for deeper analysis in Exercise 2
-npx @github/copilot -i "Analyze SecureTrails for vulnerabilities"
-```
-
 ---
 
 ## 📚 Related Resources
@@ -122,82 +102,13 @@ npx @github/copilot -i "Analyze SecureTrails for vulnerabilities"
 
 ---
 
-## 💡 Quick Reference
-
-**Start the Workshop:**
-```bash
-# Begin with Exercise 0
-cd docs/ && open 0-prereqs.md
-```
-
-**Use Copilot CLI:**
-```bash
-# Interactive analysis mode
-npx @github/copilot -i "Your security question here"
-
-# Create GitHub issue via MCP
-npx @github/copilot -i "Create issue for SQL injection in app.py line 47"
-
-# Use custom agents
-npx @github/copilot -i "/agents"  # Browse available agents
-```
-
----
-
-## 🏆 Workshop Flow
-
-```
-Exercise 0: Setup
-    ↓
-Exercise 1: GitHub GHAS (Detect)
-    ↓
-Exercise 2: Copilot CLI (Analyze)
-    ↓
-Exercise 3: Custom Agents (Document)
-    ↓
-Exercise 4: GitHub Actions (Automate)
-    ↓
-Exercise 5: Real-World Deployment (Deploy)
-```
-
----
-
-## ✅ Success Criteria
-
-After completing this workshop, you should be able to:
-
-✅ Enable GitHub Advanced Security on any repository  
-✅ Use Copilot CLI for vulnerability analysis  
-✅ Create custom security agents with `/agents` menu  
-✅ Automate security workflows with GitHub Actions  
-✅ Remediate security findings systematically  
-
----
-
-## 🎓 Workshop Delivery
-
-**Total Duration**: ~2 hours  
-**Format**: Self-paced, hands-on exercises  
-**Difficulty**: Intermediate (assumes GitHub familiarity)  
-**Target Audience**: Security engineers, DevOps, and developers
-
----
-
 **Ready to secure SecureTrails?** 
 
-## [Start with Exercise 0: Prerequisites & Setup](./docs/0-prereqs.md) →
+## [→ Start with Exercise 0: Prerequisites & Setup](./docs/0-prereqs.md)
 
 ---
 
-*Last Updated: February 2026*  
-*For questions or feedback, open an issue in this repository*
-- SQL Injection (database layer)
-- Cross-Site Scripting (web templates)
-- Broken Authentication (session handling)
-- Insecure Access Control (permissions)
-- Insecure Deserialization (data processing)
-- Vulnerable Dependencies (requirements.txt)
-- Security Misconfiguration (debug mode)
+*Last Updated: February 2026*
 
 ---
 
