@@ -318,164 +318,22 @@ where python
 
 ---
 
-## ✅ Acceptance Criteria
+## 📚 Installation Links
 
-Verify your setup by checking these items:
+Here are the essential links for setting up your environment:
 
-- [ ] VS Code installed and running
-- [ ] GitHub Copilot extension installed in VS Code
-- [ ] `copilot --version` returns a version number ≥ 0.0.414 (terminal)
-- [ ] `gh auth status` shows authenticated account (terminal)
-- [ ] SecureTrails repository cloned locally
-- [ ] Project opened in VS Code
-- [ ] Python venv created and activated
-- [ ] Dependencies installed (`pip list` shows Flask, requests, etc.)
-- [ ] Python interpreter set to venv in VS Code
-- [ ] `npx @github/copilot -i "prompt"` works (returns analysis)
-
-**All checkboxes complete?** → You're ready for Exercise 1! ✅
+1. **[VS Code](https://code.visualstudio.com/)** — Download and install
+2. **[GitHub Copilot Extension](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)** — Install in VS Code
+3. **[Node.js](https://nodejs.org/)** — Required for `npx` command
+4. **[Python 3.9+](https://www.python.org/)** — Required for virtual environment
+5. **[GitHub CLI](https://cli.github.com/)** — For authentication
+6. **[Git](https://git-scm.com/)** — For cloning repositories
 
 ---
 
-## 🆘 Troubleshooting
+## 🚀 Ready for Next Step?
 
-### Issue: GitHub Copilot extension not working in VS Code
-```bash
-# Make sure it's installed
-# Go to VS Code Extensions → Search "GitHub Copilot"
-# Install the official one by GitHub
-
-# Restart VS Code
-Code → File → Reload Window (or Ctrl+R)
-```
-
-### Issue: `gh: extension not found: copilot`
-
-**This error is from the OLD deprecated method.** You don't need the `gh extension` - use the standalone `copilot` tool instead.
-
-```bash
-# Remove the old gh extension if it exists
-gh extension remove github/gh-copilot  2>/dev/null || true
-
-# Install the standalone copilot CLI
-npm install -g @github/copilot
-# or use: brew install copilot-cli
-
-# Verify it works
-copilot --version
-```
-
-### Issue: `Permission denied` on repository clone
-```bash
-# Ensure SSH key is configured
-gh auth ssh-key add ~/.ssh/id_ed25519
-
-# Or use HTTPS with token
-git clone https://github.com/<org>/securetrails-vulnerable.git
-# Enter GitHub username and Personal Access Token as password
-```
-
-### Issue: Python venv not activating in VS Code
-```bash
-# On Windows PowerShell (if execution policy blocks it):
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# Then try again:
-venv\Scripts\Activate.ps1
-
-# Verify activation (should show (venv) in terminal prompt)
-```
-
-### Issue: Python interpreter not showing in VS Code
-```bash
-# Open Command Palette: Ctrl+Shift+P
-# Type: Python: Select Interpreter
-# Choose: ./venv/bin/python (the one with venv path)
-
-# Verify in terminal
-python --version  # Should show Python 3.9+
-```
-
-### Issue: `copilot` command returns "not found" or `gh copilot` (deprecated extension) is installed
-```bash
-# The 'gh copilot' extension is DEPRECATED as of Oct 2025
-# You need the standalone 'copilot' CLI tool instead
-
-# Check if you have the old extension (remove if present)
-gh extension list
-
-# If you see 'copilot' in the list, remove it
-gh extension remove github/gh-copilot
-
-# Install the standalone copilot tool
-# Option 1: Homebrew (Mac/Linux)
-brew install copilot-cli
-
-# Option 2: npm (all platforms)
-npm install -g @github/copilot
-
-# Option 3: Windows (winget)
-winget install GitHub.Copilot
-
-# Verify installation
-copilot --version
-```
-
-### Issue: "Authorization required" error
-```bash
-# Re-authenticate GitHub CLI
-gh auth logout
-gh auth login
-# Follow the prompts
-
-# Verify authentication
-gh auth status
-```
-
----
-
-## 📚 Resources
-
-- **[GitHub Copilot Extension](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)** — VS Code Marketplace
-- **[Copilot CLI Documentation](https://docs.github.com/en/copilot/github-copilot-cli/about-github-copilot-cli)**
-- **[VS Code setup guide](https://code.visualstudio.com/docs/setup/setup-overview)**
-- **[GitHub CLI reference](https://cli.github.com/manual/)**
-- **[Python virtual environments](https://docs.python.org/3/tutorial/venv.html)**
-
----
-
-## ✨ Quick Reference
-
-**VS Code Keyboard Shortcuts:**
-- Open terminal: `` Ctrl+` ``
-- Open command palette: `Ctrl+Shift+P`
-- Open file explorer: `Ctrl+Shift+E`
-- Open extensions: `Ctrl+Shift+X`
-- Select Python interpreter: `Ctrl+Shift+P` → "Python: Select Interpreter"
-
-**Essential Commands:**
-```bash
-# Activate virtual environment
-source venv/bin/activate          # Mac/Linux
-venv\Scripts\activate.bat         # Windows (Command Prompt)
-venv\Scripts\Activate.ps1         # Windows (PowerShell)
-
-# Test Copilot CLI (standalone tool, NOT 'gh copilot' extension)
-copilot --version
-
-# Use Copilot CLI interactively with a prompt
-npx @github/copilot -i "Your security analysis prompt here"
-
-# Check Python
-python --version
-pip list
-```
-
----
-
-## 🎯 Ready for Next Step?
-
-Once all acceptance criteria are met, proceed to:
+Once your environment is fully set up, proceed to:
 
 ### **[Exercise 1: GitHub NATIVE Security (GHAS)](./1-github-native-security.md)** →
 
