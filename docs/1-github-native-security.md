@@ -48,31 +48,30 @@ GHAS includes THREE built-in security **SERVICES**:
 
 ### Step 1.1: Go to Repository Settings
 
-In your GitHub repository, click **Security** tab:
+In your GitHub repository, click **Settings** tab:
 
-![Security Tab Navigation](./images/1.png)
+![Settings Tab Navigation](./images/1.png)
 
 **You'll see:**
-- Vulnerability alerts overview
-- Links to enable security features
+- Repository settings options
 
 ---
 
-### Step 1.2: Navigate to Security settings
+### Step 1.2: Navigate to Security and Analysis
 
-Scroll down in Settings sidebar to **Advanced Security** section:
+Scroll down in Settings sidebar to **Security and analysis** section:
 
-**Click**: "Advanced Security" → You'll see available security features
+![Security Settings Location](./images/2.png)
 
+**Click**: "Security and analysis" → You'll see available security features
+
+---
+
+### Step 1.3: Enable GHAS Features
 
 Toggle ON all these features:
 
-![Advanced Security Settings Location](./images/2.png)
-
 ![Enable Security Features](./images/3.png)
-
-![Secret Scanning Alerts](./images/5.png)
-
 
 **Enable:**
 - ☑ Dependabot alerts
@@ -85,20 +84,25 @@ Once enabled, GitHub starts scanning automatically.
 
 ---
 
-## 🔍 Step 2: Enable Code Quality (Preview)
+## 🔍 Step 2: View Security Results
 
-### Step 2.1: Open Settings → Code quality (preview) is a new GitHub feature that provides code quality insights alongside security findings.
-**Enable Code Quality (Preview)** to get additional insights on code maintainability and potential bugs.
+### Step 2.1: Open Security Dashboard
+
+Click the **Security** tab in your repository header:
 
 ![Security Tab](./images/4.png)
 
+**You'll see:**
+- Security alerts overview
+- Links to Code scanning, Dependabot, Secret scanning
+
 ---
 
-### Step 3: View Code Scanning Results
+### Step 2.2: View Code Scanning Results
 
 Click **Code scanning** in the left menu:
 
-
+![Code Scanning Results](./images/5.png)
 
 **You'll see:**
 - List of vulnerabilities found by CodeQL
@@ -108,33 +112,69 @@ Click **Code scanning** in the left menu:
 
 ---
 
-### Real Findings in SecureTrails
+## 📊 Step 3: Review CodeQL Vulnerabilities
 
 CodeQL has found vulnerabilities in the app:
 
 ![CodeQL Findings List](./images/6.png)
 
-Copilot autofix suggestions:
+**Examples you'll see:**
+- SQL Injection (CRITICAL)
+- XSS in templates (HIGH)
+- Weak password hashing (MEDIUM)
 
-![CodeQL Autofix Suggestions](./images/7.png)
+---
 
+## 🔑 Step 4: Review Secret Scanning
+
+Click **Secret scanning** in the left menu to see hardcoded secrets found:
+
+![Secret Scanning Alerts](./images/7.png)
+
+**Types of secrets detected:**
+- GitHub PAT tokens
+- AWS credentials
+- Database passwords
+- API keys
+
+---
+
+## 📦 Step 5: Review Dependabot Alerts
+
+Navigate to **Dependabot** tab to see vulnerable packages:
+
+**You'll see:**
+- Flask with known CVEs
+- requests with security issues
+- SQLAlchemy vulnerabilities
+
+---
+
+## 📋 Step 6: Create Issues from Findings
+
+Document all findings in a GitHub issue:
+
+```bash
+gh issue create \
+  --title "[SECURITY] GitHub GHAS findings - SecureTrails" \
+  --label "security,review" \
+  --body "## Security Analysis Results (GitHub Native)
+
+### CodeQL Findings
+- SQL Injection - CRITICAL
+- XSS in templates - HIGH  
+- Weak password hashing - MEDIUM
+
+### Secret Scanning
+- GitHub PAT exposed - CRITICAL
+- AWS credentials exposed - CRITICAL
+- Database password exposed - CRITICAL
+
+### Dependabot Alerts
+- Multiple vulnerable packages detected
+
+**Assessment**: Review and prioritize these findings"
 ```
-**Your task:** Click each finding to understand:
-- Why it's a vulnerability
-- Where exactly it occurs
-- What the recommended fix is
-```
-once copilot autofix suggestions are available, review them to understand how GitHub GHAS can even suggest fixes for code vulnerabilities and merge them if you want to.
-
-![CodeQL Autofix Suggestions](./images/8.png)
-
-
-### 🔍 Step 4: View Secret Scanning Results
-
-Similarly, click **Secret scanning** in the left menu: 
-
-And you'll see any hardcoded secrets found in the codebase:
-![Secret Scanning Results](./images/9.png)
 
 ---
 
@@ -178,45 +218,24 @@ gh issue create \
 
 ---
 
-## ✅ Acceptance Criteria
-
-- [ ] **Step 1.1**: Located Settings tab in repository
-- [ ] **Step 1.2**: Found "Security and analysis" in settings sidebar
-- [ ] **Step 1.3**: Enabled all security features (Dependabot, CodeQL, Secret scanning, Push protection)
-- [ ] **Step 2.1**: Navigated to Security tab and viewed dashboard
-- [ ] **Step 2.2**: Viewed Code scanning results
-- [ ] **Step 3**: Reviewed CodeQL findings - found ≥3 code vulnerabilities
-- [ ] **Step 4**: Reviewed Secret Scanning - found ≥3 hardcoded secrets
-- [ ] **Step 5**: Reviewed Dependabot alerts - found ≥3 vulnerable packages
-- [ ] **Step 6**: Created GitHub issue documenting all findings
-- [ ] **Understanding**: Can explain what each GHAS service does (CodeQL, Secret Scanning, Dependabot)
-
----
-
 ## 🎯 Key Learning
 
-**What GitHub GHAS Found in SecureTrails:**
+**What GitHub GHAS Provides Natively:**
 
-✅ **9+ Security Issues** without writing ANY custom code:
-- 3 code vulnerabilities (SQL injection, XSS, weak crypto)
-- 3 hardcoded secrets (GitHub PAT, AWS keys, DB password)
-- 3+ vulnerable packages (Flask, requests, SQLAlchemy)
+GitHub Advanced Security automatically finds three types of issues:
+- Code vulnerabilities (patterns: SQL injection, XSS, weak crypto, etc.)
+- Hardcoded secrets (credentials exposed in code)
+- Vulnerable dependencies (packages with known CVEs)
 
-**GitHub provides this FOR FREE** on enterprise/org repos or DEFAULT on public repos.
+**All enabled automatically:** You don't need to write custom tools for these basic cases.
 
-This is why starting here matters - **understand native capabilities before building custom**.
+**Why this matters:** Understand native GitHub capabilities before building custom solutions.
 
 ---
 
-## 🚀 Exercise 1 Complete!
+## 🚀 Next Steps
 
-You now understand:
-- ✅ What GitHub GHAS provides natively
-- ✅ How to enable and view security findings
-- ✅ The difference between code vulns, secrets, and dependency issues
-- ✅ That SecureTrails has real security problems to fix
-
-**Next: Exercise 2** - Use Copilot CLI for interactive analysis and fixing
+**Exercise 2** - Use Copilot CLI for deeper, interactive security analysis
 
 ---
 
@@ -229,4 +248,4 @@ You now understand:
 
 ---
 
-**⏱️ Time**: 20 min | **Exercises**: 1/5 ✓
+**⏱️ Time**: 20 min | **Exercises**: 1/6 ✓
