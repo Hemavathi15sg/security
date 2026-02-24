@@ -44,23 +44,23 @@ GHAS includes THREE built-in security **SERVICES**:
 
 ---
 
-## ⚙️ Step 1: Navigate to Security Settings
+## ⚙️ Step 1: Enable Security Features via Settings
 
 ### Step 1.1: Go to Repository Settings
 
-In your GitHub repository, navigate to **Settings** tab:
+In your GitHub repository, click **Settings** tab:
 
 ![Settings Tab Navigation](./images/1.png)
 
 **You'll see:**
-- Repository name and basic info
-- Settings sidebar on the left
+- Repository settings options in sidebar
+- Code and repository management options
 
 ---
 
-### Step 1.2: Enable Security Features
+### Step 1.2: Navigate to Security and Analysis
 
-Scroll left sidebar to **Security and analysis** section:
+Scroll down in Settings sidebar to **Security and analysis** section:
 
 ![Security Settings Location](./images/2.png)
 
@@ -74,7 +74,7 @@ Toggle ON all these features:
 
 ![Enable Security Features](./images/3.png)
 
-**Features to enable:**
+**Enable:**
 - ☑ Dependabot alerts
 - ☑ Dependabot security updates  
 - ☑ Code scanning with CodeQL
@@ -85,7 +85,7 @@ Once enabled, GitHub starts scanning automatically.
 
 ---
 
-## 🔍 Step 2: Navigate to Security Tab
+## 🔍 Step 2: View Security Results via Security Tab
 
 ### Step 2.1: Open Security Dashboard
 
@@ -94,7 +94,7 @@ Click the **Security** tab in your repository header:
 ![Security Tab](./images/4.png)
 
 **You'll see:**
-- Security alerts overview
+- Security alerts overview and summary
 - Links to Code scanning, Dependabot, Secret scanning
 
 ---
@@ -264,8 +264,9 @@ gh issue create \
 
 - [ ] **Step 1.1**: Located Settings tab in repository
 - [ ] **Step 1.2**: Found "Security and analysis" in settings sidebar
-- [ ] **Step 1.3**: Enabled all security features (Dependabot, CodeQL, Secret scanning)
-- [ ] **Step 2**: Navigated to Security tab and viewed dashboard
+- [ ] **Step 1.3**: Enabled all security features (Dependabot, CodeQL, Secret scanning, Push protection)
+- [ ] **Step 2.1**: Navigated to Security tab and viewed dashboard
+- [ ] **Step 2.2**: Viewed Code scanning results
 - [ ] **Step 3**: Reviewed CodeQL findings - found ≥3 code vulnerabilities
 - [ ] **Step 4**: Reviewed Secret Scanning - found ≥3 hardcoded secrets
 - [ ] **Step 5**: Reviewed Dependabot alerts - found ≥3 vulnerable packages
