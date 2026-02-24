@@ -1,103 +1,196 @@
-# 🔐 Security Workshop: GitHub Ecosystem from GHAS to Custom Detection
-## A Complete, Honest Guide to Modern Security Automation
+# 🔐 SecureTrails - GitHub Security Workshop
 
-**Duration**: 2 hours  
-**Level**: Intermediate  
-**Audience**: Developers interested in security, security teams, platform engineers  
-**Format**: Hands-on exercises with real vulnerable code
+![Duration: 2 Hours](https://img.shields.io/badge/Duration-2%20Hours-blue)
+![Level: Intermediate](https://img.shields.io/badge/Level-Intermediate-orange)
+![GitHub](https://img.shields.io/badge/GitHub-Security-green)
 
 ---
 
-## 🎯 What You'll Learn
+## 📖 The Story
 
-This workshop shows you the **actual, working** GitHub security ecosystem:
+Welcome to **SecureTrails**, a popular travel booking and trail management platform! Founded in 2018, our platform connects millions of adventure enthusiasts with curated hiking, trekking, and adventure trails worldwide.
 
-### How Real Security Automation Works
-- ✅ What GitHub GHAS does (and doesn't do)
-- ✅ How Copilot CLI adds conversational context
-- ✅ When to build custom security tools
-- ✅ How to orchestrate everything together
-- ✅ Real-world cost-benefit analysis
+However, our security posture has been neglected. GitHub's Advanced Security scans have recently flagged critical vulnerabilities in our codebase:
 
-### NOT Theoretical
-Unlike many security workshops, this is:
-- **Real code**: SecureTrails contains actual OWASP vulnerabilities
-- **Real tools**: GitHub GHAS, Copilot CLI, GitHub Actions (all working)
-- **Real patterns**: Professional team workflows
-- **Real costs**: No aspirational frameworks—just what works in 2026
+- 🔴 **SQL Injection** in our database query layer
+- 🔴 **Broken Authentication** in user permission validation
+- 🔴 **Hardcoded Secrets** in environment files
+- 🔴 **Vulnerable Dependencies** in our Python packages
+
+As a newly hired Security Engineer at SecureTrails, your mission is to **audit, analyze, and remediate these vulnerabilities** using GitHub's complete security ecosystem. We need to secure our platform before the peak season when millions of users rely on us.
 
 ---
 
-## 🏗️ Architecture at a Glance
+## 🎯 Workshop Objectives
+
+By the end of this 2-hour workshop, you will:
+
+✅ Understand GitHub's native security features (GHAS, CodeQL, Secret Scanning, Dependabot)  
+✅ Use Copilot CLI for interactive vulnerability analysis  
+✅ Create custom security agents to guide fix remediation  
+✅ Automate security workflows with GitHub Actions  
+✅ Deploy a complete, repeatable security strategy  
+
+---
+
+## 🛠️ Prerequisites
+
+### Required Tools
+
+- **Visual Studio Code** (latest version)
+- **GitHub Copilot CLI** (`npx @github/copilot`)
+- **GitHub CLI** (`gh` v2.0+)
+- **Git** (v2.40+)
+
+### Authentication
+
+- **GitHub Account** (with Copilot access)
+- **GitHub Authentication** (`gh auth login`)
+
+### Access
+
+- Clone of **SecureTrails** vulnerable app: `https://github.com/Hemavathi15sg/securetrails-workshop`
+
+---
+
+## 📚 Workshop Exercises
+
+| # | Exercise | Duration | Level | Focus | What You'll Do |
+|---|----------|----------|-------|-------|---|
+| 0 | [Prerequisites & Setup](./docs/0-prereqs.md) | 10 min | ⭐ | Setup | Install tools, authenticate with GitHub |
+| 1 | [GitHub NATIVE Security (GHAS)](./docs/1-github-native-security.md) | 20 min | ⭐⭐ | Detection | Enable GHAS, review CodeQL findings, secrets, Dependabot alerts |
+| 2 | [Copilot CLI - Interactive Analysis](./docs/2-copilot-cli-interactive.md) | 20 min | ⭐⭐⭐ | Analysis | Use Copilot CLI to analyze vulnerabilities, create GitHub issues |
+| 3 | [Create Custom Agents](./docs/3-custom-agents-creation.md) | 20 min | ⭐⭐⭐⭐ | Documentation | Build fix guides using Copilot CLI `/agents` system |
+| 4 | [GitHub Actions Integration](./docs/4-github-actions-orchestration.md) | 20 min | ⭐⭐⭐⭐ | Automation | Orchestrate GHAS → Issues → Agents → Workflows |
+| 5 | [Real-World Ecosystem](./docs/5-real-world-ecosystem.md) | 20 min | ⭐⭐⭐⭐⭐ | Deployment | Deploy complete security strategy end-to-end |
+
+---
+
+## 📖 Key Concepts
+
+**GitHub Advanced Security (GHAS)**
+- CodeQL: Static analysis for code vulnerabilities
+- Secret Scanning: Detects hardcoded credentials
+- Dependabot: Identifies vulnerable packages
+
+**Copilot CLI**
+- Interactive security analysis
+- Multi-turn conversations about findings
+- Create issues directly via GitHub MCP
+
+**Custom Agents**
+- Copilot CLI `/agents` system
+- Fix documentation guides
+- Reusable across team
+
+**GitHub Actions**
+- Automated security workflows
+- Continuous scanning
+- Remediation tracking
+
+---
+
+## 🚀 Getting Started
+
+### Step 1: Complete Prerequisites
+```bash
+# Follow Exercise 0 to set up your environment
+open ./docs/0-prereqs.md
+```
+
+### Step 2: Enable Security Features
+```bash
+# Navigate to Exercise 1 to enable GHAS
+open ./docs/1-github-native-security.md
+```
+
+### Step 3: Analyze Vulnerabilities
+```bash
+# Use Copilot CLI for deeper analysis in Exercise 2
+npx @github/copilot -i "Analyze SecureTrails for vulnerabilities"
+```
+
+---
+
+## 📚 Related Resources
+
+- [GitHub Advanced Security Docs](https://docs.github.com/en/enterprise-cloud@latest/code-security)
+- [Copilot CLI Documentation](https://docs.github.com/en/copilot/github-copilot-cli/about-github-copilot-cli)
+- [GitHub CodeQL](https://codeql.github.com/)
+- [Dependabot Alerts](https://docs.github.com/en/code-security/dependabot)
+- [Secret Scanning](https://docs.github.com/en/code-security/secret-scanning)
+
+---
+
+## 💡 Quick Reference
+
+**Start the Workshop:**
+```bash
+# Begin with Exercise 0
+cd docs/ && open 0-prereqs.md
+```
+
+**Use Copilot CLI:**
+```bash
+# Interactive analysis mode
+npx @github/copilot -i "Your security question here"
+
+# Create GitHub issue via MCP
+npx @github/copilot -i "Create issue for SQL injection in app.py line 47"
+
+# Use custom agents
+npx @github/copilot -i "/agents"  # Browse available agents
+```
+
+---
+
+## 🏆 Workshop Flow
 
 ```
-TIER 1: GITHUB NATIVE (Built-in GitHub Services - NOT .py files)
-├─ CodeQL (SQL injection, XSS detection)
-├─ Secret Scanning (hardcoded credentials)
-└─ Dependabot (vulnerable packages)
-   → Automatic. Free. Always running. Runs on GitHub servers.
-
-TIER 2: INTERACTIVE ANALYSIS (Your Team - Access via CLI)
-├─ Copilot CLI (conversational security review)
-└─ Security team uses to prioritize & recommend fixes
-   → Human expertise via CLI. Requires Copilot license.
-
-TIER 3: CUSTOM AGENTS (Your .md Fix Guides - What YOU Create)
-├─ .md files documenting HOW to fix vulnerabilities
-├─ Created using Copilot CLI prompts
-├─ Stored in `.github/agents/` as reference guides
-└─ Follow step-by-step remediation for each issue
-   → Your domain-specific fix documentation.
-
-TIER 4: ORCHESTRATION (GitHub Actions Workflow)
-├─ GitHub Actions (chains GHAS detection with custom agents)
-├─ Creates issues linked to agent fix guides
-├─ Developers follow guides to remediate
-└─ Tracks remediation progress
-   → Integration layer. Glues everything.
+Exercise 0: Setup
+    ↓
+Exercise 1: GitHub GHAS (Detect)
+    ↓
+Exercise 2: Copilot CLI (Analyze)
+    ↓
+Exercise 3: Custom Agents (Document)
+    ↓
+Exercise 4: GitHub Actions (Automate)
+    ↓
+Exercise 5: Real-World Deployment (Deploy)
 ```
 
-**IMPORTANT**: This is NOT about pre-built .py files. Custom agents are .md fix guides YOU create using Copilot CLI.
+---
+
+## ✅ Success Criteria
+
+After completing this workshop, you should be able to:
+
+✅ Enable GitHub Advanced Security on any repository  
+✅ Use Copilot CLI for vulnerability analysis  
+✅ Create custom security agents with `/agents` menu  
+✅ Automate security workflows with GitHub Actions  
+✅ Remediate security findings systematically  
 
 ---
 
-## 📚 Workshop Structure
+## 🎓 Workshop Delivery
 
-| Exercise | Duration | Topic | What You Do | Tools |
-|----------|----------|-------|-----------|-------|
-| **0** | 10 min | Prerequisites | Clone repo, setup auth, verify tools | gh, git, Python |
-| **1** | 20 min | GitHub NATIVE | Enable CodeQL, Secrets, Dependabot | GitHub GHAS |
-| **2** | 20 min | Conversational Analysis | Use Copilot CLI for interactive review | Copilot CLI |
-| **3** | 20 min | Create Custom Agents | Generate fix guides using Copilot CLI | Copilot CLI + .md files |
-| **4** | 20 min | Orchestration | Connect GHAS + Agents in workflow | GitHub Actions |
-| **5** | 20 min | Real-World | Deploy complete ecosystem, see it work | All tools |
-| | **2 hrs** | **TOTAL** | | |
+**Total Duration**: ~2 hours  
+**Format**: Self-paced, hands-on exercises  
+**Difficulty**: Intermediate (assumes GitHub familiarity)  
+**Target Audience**: Security engineers, DevOps, and developers
 
 ---
 
-## 📋 Exercise Map
+**Ready to secure SecureTrails?** 
 
-- **[Exercise 0: Prerequisites](docs/0-prereqs.md)** - Setup & verification
-- **[Exercise 1: GitHub NATIVE Security](docs/1-github-native-security.md)** - GHAS fundamentals
-- **[Exercise 2: Copilot CLI Interactive](docs/2-copilot-cli-interactive.md)** - Conversational analysis
-- **[Exercise 3: Create Custom Agents](docs/3-custom-agents-creation.md)** - Generate fix guides using CLI
-- **[Exercise 4: GitHub Actions Orchestration](docs/4-github-actions-orchestration.md)** - Connect detection to agents
-- **[Exercise 5: Real-World Ecosystem](docs/5-real-world-ecosystem.md)** - Production deployment
+## [Start with Exercise 0: Prerequisites & Setup](./docs/0-prereqs.md) →
 
 ---
 
-## 🎭 The SecureTrails Scenario
-
-Throughout this workshop, you're working with **SecureTrails Co.**—a fictional trail booking platform.
-
-### Context
-- 15 developers building Flask + React + Python backend
-- Running on AWS, deployed via GitHub Actions
-- Public GitHub repository
-- Needs OWASP compliance
-
-### The Vulnerabilities
-The SecureTrails app intentionally contains 7 OWASP vulnerabilities:
+*Last Updated: February 2026*  
+*For questions or feedback, open an issue in this repository*
 - SQL Injection (database layer)
 - Cross-Site Scripting (web templates)
 - Broken Authentication (session handling)
