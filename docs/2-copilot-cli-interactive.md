@@ -254,45 +254,6 @@ results = database.execute(query, (user_input,))
 
 ---
 
-## 📊 Comparison: A vs B
-
-| Aspect | Option A (Direct Prompt) | Option B (Delegation) |
-|--------|-------------------------|----------------------|
-| **Speed** | Immediate | Slightly slower (creates PR) |
-| **Accountability** | ❌ None | ✅ Full audit trail |
-| **Code Review** | ❌ Manual | ✅ Automatic PR |
-| **Issue Linking** | ❌ Manual | ✅ Automatic |
-| **Team Coordination** | ❌ Unclear who's fixing | ✅ Clear assignment |
-| **Learning** | ✅ Good | ✅ Good + PR review |
-| **Best For** | Solo developers | Teams & enterprises |
-
----
-
-## 🎯 SecureTrails Recommendation
-
-**Use Option B (Delegation)** for your team:
-
-1. GitHub GHAS finds vuln → Creates issue
-2. You ask Copilot to `/delegate`
-3. Coding agent creates PR
-4. Senior dev reviews + merges
-5. Custom agents document the pattern (Exercise 3)
-
-This creates a **repeatable, auditable security workflow** that scales.
-
----
-
-## ✅ Acceptance Criteria
-
-- [ ] Launched Copilot CLI interactive session
-- [ ] Created GitHub issue via MCP
-- [ ] Tried Option A (direct fix prompt) - understand the output
-- [ ] Tried Option B (delegation with /delegate) - understand the PR creation
-- [ ] Know when to use each approach
-- [ ] Understand why Option B is better for teams
-
----
-
 ## 🚀 Next Steps
 
 **Exercise 3**: Create Custom Agents
